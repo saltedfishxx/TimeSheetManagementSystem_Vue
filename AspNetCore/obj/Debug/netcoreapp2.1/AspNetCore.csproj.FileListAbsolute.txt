@@ -1,0 +1,13 @@
+D:\Desktop\TimeSheetManagementSystem_Vue\AspNetCore\bin\Debug\netcoreapp2.1\AspNetCore.deps.json
+D:\Desktop\TimeSheetManagementSystem_Vue\AspNetCore\bin\Debug\netcoreapp2.1\AspNetCore.runtimeconfig.json
+D:\Desktop\TimeSheetManagementSystem_Vue\AspNetCore\bin\Debug\netcoreapp2.1\AspNetCore.runtimeconfig.dev.json
+D:\Desktop\TimeSheetManagementSystem_Vue\AspNetCore\bin\Debug\netcoreapp2.1\AspNetCore.dll
+D:\Desktop\TimeSheetManagementSystem_Vue\AspNetCore\bin\Debug\netcoreapp2.1\AspNetCore.pdb
+D:\Desktop\TimeSheetManagementSystem_Vue\AspNetCore\obj\Debug\netcoreapp2.1\AspNetCore.csproj.CoreCompileInputs.cache
+D:\Desktop\TimeSheetManagementSystem_Vue\AspNetCore\obj\Debug\netcoreapp2.1\AspNetCore.RazorAssemblyInfo.cache
+D:\Desktop\TimeSheetManagementSystem_Vue\AspNetCore\obj\Debug\netcoreapp2.1\AspNetCore.RazorAssemblyInfo.cs
+D:\Desktop\TimeSheetManagementSystem_Vue\AspNetCore\obj\Debug\netcoreapp2.1\AspNetCore.AssemblyInfoInputs.cache
+D:\Desktop\TimeSheetManagementSystem_Vue\AspNetCore\obj\Debug\netcoreapp2.1\AspNetCore.AssemblyInfo.cs
+D:\Desktop\TimeSheetManagementSystem_Vue\AspNetCore\obj\Debug\netcoreapp2.1\AspNetCore.RazorTargetAssemblyInfo.cache
+D:\Desktop\TimeSheetManagementSystem_Vue\AspNetCore\obj\Debug\netcoreapp2.1\AspNetCore.dll
+D:\Desktop\TimeSheetManagementSystem_Vue\AspNetCore\obj\Debug\netcoreapp2.1\AspNetCore.pdb
