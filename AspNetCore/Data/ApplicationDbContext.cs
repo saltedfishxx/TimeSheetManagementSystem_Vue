@@ -17,7 +17,7 @@ namespace AspNetCore.Data
     {
 
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
-        public DbSet<User> UserInfo { get; set; }
+        public DbSet<UserInfo> UserInfo { get; set; }
         public DbSet<SessionSynopsis> SessionSynopses { get; set; }
         public DbSet<CustomerAccount> CustomerAccounts { get; set; }
         public DbSet<InstructorAccount> InstructorAccounts { get; set; }
@@ -163,45 +163,50 @@ namespace AspNetCore.Data
 
             //----------- Defining UserInfo Entity - Start --------------
             //Make the UserInfotId as  Primary Key 
-            modelBuilder.Entity<User>()
+            modelBuilder.Entity<UserInfo>()
                 .HasKey(input => input.Id)
                 .HasName("PrimaryKey_UserInfoId");
 
-            modelBuilder.Entity<User>()
+            modelBuilder.Entity<UserInfo>()
                 .Property(input => input.Id)
-                .HasColumnName("UserInfoId")
+                .HasColumnName("Id")
                 .HasColumnType("int")
                 .UseSqlServerIdentityColumn()
                 .ValueGeneratedOnAdd()
                 .IsRequired(true);
 
-            modelBuilder.Entity<User>()
+            modelBuilder.Entity<UserInfo>()
                       .Property(input => input.UserName)
-                      .HasColumnName("LoginUserName")
-                      .HasColumnType("VARCHAR(10)")
+                      .HasColumnName("Username")
+                      .HasColumnType("VARCHAR(20)")
                       .IsRequired(true);
 
-            modelBuilder.Entity<User>()
+            modelBuilder.Entity<UserInfo>()
+                .Property(input => input.FirstName)
+                .HasColumnName("FirstName")
+                .HasColumnType("VARCHAR(200)")
+                .IsRequired(true);
+
+            modelBuilder.Entity<UserInfo>()
                 .Property(input => input.LastName)
                 .HasColumnName("FullName")
-                .HasColumnType("VARCHAR(100)")
+                .HasColumnType("VARCHAR(200)")
                 .IsRequired(true);
 
-            modelBuilder.Entity<User>()
-                .Property(input => input.Email)
-                .HasColumnName("Email")
-                .HasColumnType("VARCHAR(50)")
+            modelBuilder.Entity<UserInfo>()
+                .Property(input => input.PasswordHash)
+                .HasColumnName("PasswordHash")
+                .HasColumnType("VARBINARY(MAX)")
                 .IsRequired(true);
 
-            modelBuilder.Entity<User>()
-                .Property(input => input.IsActive)
-                .HasColumnName("IsActive")
-                .HasColumnType("bit")
-                .HasDefaultValue(true)
-                .IsRequired(true);
+            modelBuilder.Entity<UserInfo>()
+               .Property(input => input.PasswordSalt)
+               .HasColumnName("PasswordSalt")
+               .HasColumnType("VARBINARY(MAX)")
+               .IsRequired(true);
 
             //Enforce unique constraint on StaffId
-            modelBuilder.Entity<User>()
+            modelBuilder.Entity<UserInfo>()
              .HasIndex(input => input.UserName).IsUnique()
              .HasName("UserInfo_LoginUserName_UniqueConstraint");
 

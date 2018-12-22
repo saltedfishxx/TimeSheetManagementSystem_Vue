@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace AspNetCore.Models
 {
-    public class User
+    public class UserInfo
     {
         //The database domain class will not model the admin and instructor role
         //information since AspNetUsers and the respective security tables
@@ -17,8 +17,7 @@ namespace AspNetCore.Models
         public string UserName { get; set; }
         public byte[] PasswordHash { get; set; }
         public byte[] PasswordSalt { get; set; }
-        public string Email { get; set; }
-        public bool IsActive { get; set; }
+
         public List<InstructorAccount> InstructorAccounts { get; set; }
         public List<TimeSheet> TimeSheets { get; set; }
 

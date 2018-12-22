@@ -19,23 +19,23 @@ namespace AspNetCore.Models
         //CreatedBy and the CreatedById property because both usually share the same values.
         //Eventually, I keep both of them as "insurance".
         public int InstructorId { get; set; }
-        public User Instructor { get; set; }
+        public UserInfo Instructor { get; set; }
 
         public int CreatedById { get; set; }
-        public User CreatedBy { get; set; }
+        public UserInfo CreatedBy { get; set; }
         public DateTime CreatedAt { get; set; }
 
         //I felt like removing these 3 properties. After some thought that the admin
         //might step in to make changes on what the instructor has entered. I think I better
         //keep it.
         public int UpdatedById { get; set; }
-        public User UpdatedBy { get; set; }
+        public UserInfo UpdatedBy { get; set; }
         public DateTime UpdatedAt { get; set; }
 
         public DateTime? VerifiedAndSubmittedAt { get; set; }
         public int CheckedById { get; set; }
 
-        public User ApprovedBy { get; set; }
+        public UserInfo ApprovedBy { get; set; }
         public int? ApprovedById { get; set; }
         public DateTime? ApprovedAt { get; set; }
 

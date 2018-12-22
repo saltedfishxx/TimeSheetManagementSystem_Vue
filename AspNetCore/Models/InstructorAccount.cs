@@ -9,7 +9,7 @@ namespace AspNetCore.Models
     {
         public int InstructorAccountId { get; set; }
         public int InstructorId { get; set; }
-        public User Instructor { get; set; }
+        public UserInfo Instructor { get; set; }
         public int CustomerAccountId { get; set; }
         public string Comments { get; set; }
         public CustomerAccount CustomerAccount { get; set; }

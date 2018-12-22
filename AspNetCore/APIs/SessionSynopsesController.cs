@@ -107,6 +107,7 @@ namespace AspNetCore.APIs
 
 
         //POST api/SessionSynopses
+        [EnableCors("VueCorsPolicy")]
         [HttpPost]
         public IActionResult Post([FromBody] string value)
         {

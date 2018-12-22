@@ -11,3 +11,4 @@ D:\Desktop\TimeSheetManagementSystem_Vue\AspNetCore\obj\Debug\netcoreapp2.1\AspN
 D:\Desktop\TimeSheetManagementSystem_Vue\AspNetCore\obj\Debug\netcoreapp2.1\AspNetCore.RazorTargetAssemblyInfo.cache
 D:\Desktop\TimeSheetManagementSystem_Vue\AspNetCore\obj\Debug\netcoreapp2.1\AspNetCore.dll
 D:\Desktop\TimeSheetManagementSystem_Vue\AspNetCore\obj\Debug\netcoreapp2.1\AspNetCore.pdb
+D:\Desktop\TimeSheetManagementSystem_Vue\AspNetCore\obj\Debug\netcoreapp2.1\AspNetCore.csprojAssemblyReference.cache

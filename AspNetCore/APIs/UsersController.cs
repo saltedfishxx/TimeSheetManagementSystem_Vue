@@ -18,8 +18,8 @@ using Microsoft.AspNetCore.Cors;
 namespace AspNetCore.Controllers
 {
     [Authorize]
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("[controller]")]
     [EnableCors("VueCorsPolicy")]
     public class UsersController : ControllerBase
     {
@@ -39,7 +39,7 @@ namespace AspNetCore.Controllers
 
         [AllowAnonymous]
         [HttpPost("signin")]
-        public IActionResult SignIn(IFormCollection inFormData)
+        public IActionResult SignIn([FromForm]IFormCollection inFormData)
         {
             var user = _userService.Authenticate(inFormData["username"], inFormData["password"]);
 
@@ -77,19 +77,21 @@ namespace AspNetCore.Controllers
         }
 
         [AllowAnonymous]
+        [EnableCors("VueCorsPolicy")]
         [HttpPost("signup")]
-        public IActionResult SignUp(IFormCollection inFormData)
+        public IActionResult SignUp([FromForm]IFormCollection inFormData)
         {
-            User newUser = new User()
+            UserInfo newUser = new UserInfo()
             {
-                FirstName = inFormData["firstName"],
-                LastName = inFormData["lastName"],
-                UserName = inFormData["userName"]
+                FirstName = inFormData["firstname"],
+                LastName = inFormData["lastname"],
+                UserName = inFormData["username"]
             };
+            string password = inFormData["password"];
             try
             {
                 // save 
-                _userService.Create(newUser, inFormData["password"]);
+                _userService.Create(newUser, password);
                 return Ok(new
                 {
                     signUpStatus = true,
@@ -108,7 +110,7 @@ namespace AspNetCore.Controllers
         {
             var users = _userService.GetAll();
             List<object> userList = new List<object>();
-            foreach (User user in users)
+            foreach (UserInfo user in users)
             {
                 userList.Add(new
                 {
@@ -143,12 +145,13 @@ namespace AspNetCore.Controllers
             //system (e.g. Facebook, Twitter etc) that lets you change the
             //user name. This is just a project example which focuses on JWT
             //token security concept.
-            User user = new User()
+            UserInfo user = new UserInfo()
             {
                 Id = id,
-                FirstName = inFormData["firstName"],
-                LastName = inFormData["lastName"],
-                UserName = inFormData["userName"]
+                FirstName = inFormData["firstname"],
+                LastName = inFormData["lastname"],
+                UserName = inFormData["username"],
+      
             };
 
             try

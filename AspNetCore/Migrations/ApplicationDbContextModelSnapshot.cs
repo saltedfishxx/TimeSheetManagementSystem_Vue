@@ -401,37 +401,41 @@ namespace AspNetCore.Migrations
 
             modelBuilder.Entity("AspNetCore.Models.UserInfo", b =>
                 {
-                    b.Property<int>("UserInfoId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("UserInfoId")
+                        .HasColumnName("Id")
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Email")
+                    b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnName("Email")
-                        .HasColumnType("VARCHAR(50)");
+                        .HasColumnName("FirstName")
+                        .HasColumnType("VARCHAR(100)");
 
-                    b.Property<string>("FullName")
+                    b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnName("FullName")
                         .HasColumnType("VARCHAR(100)");
 
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("IsActive")
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<string>("LoginUserName")
+                    b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnName("LoginUserName")
+                        .HasColumnName("PasswordHash")
+                        .HasColumnType("CHAR(128)");
+
+                    b.Property<string>("PasswordSalt")
+                        .IsRequired()
+                        .HasColumnName("PasswordSalt")
+                        .HasColumnType("CHAR(128)");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnName("Username")
                         .HasColumnType("VARCHAR(10)");
 
-                    b.HasKey("UserInfoId")
+                    b.HasKey("Id")
                         .HasName("PrimaryKey_UserInfoId");
 
-                    b.HasIndex("LoginUserName")
+                    b.HasIndex("UserName")
                         .IsUnique()
                         .HasName("UserInfo_LoginUserName_UniqueConstraint");
 

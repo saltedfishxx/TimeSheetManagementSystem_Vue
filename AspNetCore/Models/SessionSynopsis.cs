@@ -11,9 +11,9 @@ namespace AspNetCore.Models
         public string SessionSynopsisName { get; set; }
 
         public int CreatedById { get; set; }
-        public User CreatedBy { get; set; }
+        public UserInfo CreatedBy { get; set; }
         public int UpdatedById { get; set; }
-        public User UpdatedBy { get; set; }
+        public UserInfo UpdatedBy { get; set; }
         //IsVisible shares similar meaning as IsEnabled in the AccountDetail domain class definition.
         public bool IsVisible { get; set; }
 
