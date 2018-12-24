@@ -2,12 +2,15 @@
 <div class="row">
         <div class="col-sm-6 offset-sm-3">
     <div class="box">
+        <section class="sectionTitle level-left">
+        <b-icon pack="fas" icon="user" type="is-danger" size="is-medium"></b-icon>
+        <h2 class="title is-3 loginTitle">Login</h2>
+        </section>
         <div v-if="alert.message" class="alertMessage" :class="`alert ${alert.type}`">{{alert.message}}</div>
         <div class="alert alert-info">
             Username: test<br />
             Password: test
         </div>
-        <h2>Login</h2>
         <form @submit.prevent="handleSubmit">
             <div class="form-group">
                 <label for="username">Username</label>
@@ -19,9 +22,8 @@
                 <input type="password" v-model="password" name="password" class="form-control" :class="{ 'is-invalid': submitted && !password }" />
                 <div v-show="submitted && !password" class="invalid-feedback">Password is required</div>
             </div>
-            <div class="form-group">
-                <button class="button is-primary" :disabled="loggingIn">Login</button>
-                <img v-show="loggingIn" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
+            <div class="form-group level">
+                <button class="button is-primary arrange" :disabled="loggingIn">Login</button>
                 <p>Have not created an account? <router-link to="/signup">Sign Up</router-link></p>
             </div>
         </form>
@@ -77,5 +79,14 @@ export default {
 .box{
     margin-top: 5em;
 }
-
+.arrange {
+  float: left;
+}
+.sectionTitle{
+    margin-left: 0.2em;
+    margin-bottom: 1.2em;
+}
+.loginTitle{
+    margin-left: 0.5em;
+}
 </style>

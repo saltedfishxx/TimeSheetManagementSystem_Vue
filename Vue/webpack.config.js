@@ -5,7 +5,8 @@ require("babel-polyfill");
 module.exports = {
     mode: 'development',
     resolve: {
-        extensions: ['.js', '.vue']
+        extensions: ['.js', '.vue'],
+
     },
    
     module: {
@@ -24,8 +25,9 @@ module.exports = {
             {
                 test: /\.(gif|svg|jpg|png)$/,
                 loader: "file-loader",
-              }
-        ]
+              },
+        ],
+       
     },
     plugins: [new HtmlWebpackPlugin({
         template: './src/index.html'

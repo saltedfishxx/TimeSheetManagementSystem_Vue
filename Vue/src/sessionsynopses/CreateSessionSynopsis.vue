@@ -38,11 +38,11 @@
                 Create
                 </button>
             </p>
-            <a class="control" href="/ManageSessionSynopses">
+            <router-link class="control" to="/ManageSessionSynopses">
                 <button class="button is-dark">
                 Cancel
                 </button>
-            </a>
+            </router-link>
             </div>
     </div>
     </div>
@@ -57,7 +57,7 @@
 <script>
 import qs from "qs";
 import axios from "axios";
-import { router } from '../_helpers';
+import { router, authHeader } from '../_helpers';
 
 axios.defaults.headers["X-Requested-With"] = "XMLHttpRequest";
 
@@ -87,10 +87,7 @@ export default {
              +"'"
           ,
           {
-            headers: {
-              "content-type": "application/json",
-               'Access-Control-Allow-Origin': '*'
-            }
+            headers: authHeader()
           }
         )
         .then(response => {

@@ -1,5 +1,5 @@
 import config from 'config';
-import { authHeader } from '../_helpers';
+import { authHeader, authHeader2 } from '../_helpers';
 import qs from 'qs';
 
 

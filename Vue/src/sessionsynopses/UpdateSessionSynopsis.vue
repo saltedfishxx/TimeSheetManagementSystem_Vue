@@ -37,11 +37,11 @@
                 Update
                 </button>
             </p>
-            <a class="control" href="/ManageSessionSynopses">
+            <router-link class="control" to="/ManageSessionSynopses">
                 <button class="button is-dark">
                 Cancel
                 </button>
-            </a>
+            </router-link>
             </div>
     </div>
     </div>
@@ -57,7 +57,7 @@
 <script>
 import qs from "qs";
 import axios from "axios";
-import { router } from '../_helpers';
+import { router, authHeader } from '../_helpers';
 
 axios.defaults.headers["X-Requested-With"] = "XMLHttpRequest";
 
@@ -80,7 +80,10 @@ export default {
       axios
         .get(
           "http://localhost:5000/api/SessionSynopses/" +
-            this.$route.params.sessionId
+            this.$route.params.sessionId,
+             {
+            headers: authHeader()
+          }
         )
         .then(response => {
           // JSON responses are automatically parsed.
@@ -103,10 +106,9 @@ export default {
 
             "'" + JSON.stringify(this.model) + "'",
             {
-              headers: {
-                "content-type": "application/json"
-              }
-            }
+            headers: authHeader()
+          }
+            
           )
           .then(response => {
             console.log(response);

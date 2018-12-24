@@ -21,9 +21,9 @@
         </b-field>
             </div>
             <div class="level-right">
-            <a class="control" href="/CreateSessionSynopsis">
+            <router-link class="control" to="/CreateSessionSynopsis">
                 <button class="button is-info"><b-icon pack="fas" icon="plus"></b-icon><p>Add Session</p></button>
-            </a>
+            </router-link>
             </div>
             </div>
         <b-table
@@ -89,7 +89,7 @@
 <script>
 //import api from '@/SessionSynopsesApiService';
 import axios from "axios";
-import { router } from '../_helpers';
+import { router, authHeader } from '../_helpers';
 
 export default {
   data() {
@@ -117,7 +117,8 @@ export default {
   methods: {
     getAll() {
       axios
-        .get("http://localhost:5000/api/SessionSynopses/")
+        .get("http://localhost:5000/api/SessionSynopses/",
+        {headers: authHeader()})
         .then(response => {
           // JSON responses are automatically parsed.
           this.data = response.data;
@@ -145,7 +146,8 @@ export default {
         onConfirm: () =>  {
             console.log(sessionId);
             axios
-            .delete("http://localhost:5000/api/SessionSynopses/" + sessionId)
+            .delete("http://localhost:5000/api/SessionSynopses/" + sessionId,
+            {headers: authHeader()})
             .then(response => {
               // JSON responses are automatically parsed.
               this.data.splice(sessionId, -1);

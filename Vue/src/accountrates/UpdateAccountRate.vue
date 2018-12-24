@@ -63,11 +63,11 @@
                 Update
                 </button>
             </p>
-            <a class="control">
+            <div class="control">
                 <button class="button is-dark" @click="back(customer.customerAccountId)">
                 Cancel
                 </button>
-            </a>
+            </div>
             </div>
         </div>
     </div>
@@ -87,7 +87,7 @@
 <script>
 import qs from "qs";
 import axios from "axios";
-import { router } from '../_helpers';
+import { router, authHeader } from '../_helpers';
 import moment from 'moment';
 
 axios.defaults.headers["X-Requested-With"] = "XMLHttpRequest";
@@ -111,7 +111,10 @@ export default {
   methods: {
      getAll() {
       axios
-        .get("http://localhost:5000/api/CustomerAccounts/UpdateAccountRates/" + this.$route.params.rateId)
+        .get("http://localhost:5000/api/CustomerAccounts/UpdateAccountRates/" + this.$route.params.rateId,
+         {
+            headers: authHeader()
+          })
         .then(response => {
           // JSON responses are automatically parsed.
           this.customer = response.data;
@@ -153,10 +156,7 @@ export default {
              +"'"
           ,
           {
-            headers: {
-              "content-type": "application/json",
-              'Access-Control-Allow-Origin': '*'
-            }
+            headers: authHeader()
           }
         )
         .then(response => {
@@ -176,7 +176,7 @@ export default {
       }
     },
      back(customerAccountId) {
-      router.push({ path: `/ManageAccountRates/${customerAccountId}` }); 
+      router.go(-1); 
     },
   }
 };

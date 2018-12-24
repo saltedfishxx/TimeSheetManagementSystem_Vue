@@ -17,7 +17,6 @@ using Microsoft.AspNetCore.Cors;
 
 namespace AspNetCore.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     [EnableCors("VueCorsPolicy")]

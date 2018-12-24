@@ -1,6 +1,6 @@
 <template>
   <div>
-    <nav class="navbar is-primary" role="navigation" aria-label="main navigation">
+    <nav class="navbar is-primary is-transparent" role="navigation" aria-label="main navigation">
       <div class="navbar-brand">
         <!--icon -->
         <router-link class="navbar-item" to="/">
@@ -28,7 +28,7 @@
             <router-link class="navbar-link" to="/ManageSessionSynopses">Session Synopses</router-link>
 
             <div class="navbar-dropdown">
-              <a class="navbar-item" href="/ManageSessionSynopses">Manage Session Sypnopses</a>
+              <router-link class="navbar-item" to="/ManageSessionSynopses">Manage Session Sypnopses</router-link>
               <hr class="navbar-divider">
               <router-link class="navbar-item" to="/CreateSessionSynopsis">Create Session Sypnopsis</router-link>
             </div>
@@ -45,18 +45,25 @@
         </div>
 
         <div class="navbar-end">
+          <div class="navbar-item">
+            <p>{{ currentUser() }}</p>
+          </div>
           <div class="navbar-item buttons">
-            <router-link to="/login" class="button is-light" @click.prevent="login" v-if="!activeUser">Login</router-link>
-            <router-link to="/login" class="button is-light" @click.prevent="logout" v-else>Logout</router-link>
+            <router-link
+              to="/login"
+              class="button is-light"
+              @click.prevent="login"
+              v-if="!activeUser"
+            >Login</router-link>
+            <p to="/login" class="button is-light" @click="logout" v-else>Logout</p>
           </div>
         </div>
       </div>
     </nav>
     <div class="container">
-          <transition name="fade" mode="out-in">
-            <router-view></router-view>
-          </transition>
-    
+      <transition name="fade" mode="out-in">
+        <router-view :key="$route.fullPath"></router-view>
+      </transition>
     </div>
     <link
       rel="stylesheet"
@@ -70,18 +77,43 @@
 export default {
   name: "app",
   computed: {
-        activeUser () {
-            return this.$store.state.authentication.user;
-        },
+    activeUser() {
+      return this.$store.state.authentication.user;
+    }
   },
   methods: {
-      login () {
-
-      },
-      async logout () {
-         
-      }
+    login() {},
+    async logout() {
+      this.$dialog.confirm({
+        title: "Log Out",
+        message:
+          "Are you sure you want to <b>Logout</b>?",
+        confirmText: "Logout",
+        type: "is-danger",
+        hasIcon: true,
+        onConfirm: () =>  {
+          this.$toast.open("Logging out...");
+          this.$router.push('/login' );
+           }
+          
+    
+      });
     },
+    currentUser: function() {
+      // `this` points to the vm instance
+      let user = JSON.parse(localStorage.getItem("user"));
+      if (user != null) {
+        console.log(user);
+        if (this.$store.state.authentication.user) {
+          return "Welcome, " + user.user.userName;
+        } else {
+          return "";
+        }
+      } else {
+        return "";
+      }
+    }
+  },
   watch: {
     $route(to, from) {
       // clear alert on location change
@@ -96,7 +128,6 @@ export default {
 // Import Bulma and Buefy styles
 @import "~bulma";
 @import "~buefy/src/scss/buefy";
-
 
 .fade-enter-active,
 .fade-leave-active {

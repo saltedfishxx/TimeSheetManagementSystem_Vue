@@ -2,7 +2,10 @@
   <div class="row">
     <div class="col-sm-6 offset-sm-3">
       <div class="box">
-        <h2>Sign Up</h2>
+         <section class="sectionTitle level-left">
+        <b-icon pack="fas" icon="user-plus" type="is-danger" size="is-medium"></b-icon>
+        <h2 class="title is-3 loginTitle">Sign Up</h2>
+        </section>
         <form @submit.prevent="handleSubmit">
           <div class="form-group">
             <label for="username">Username</label>
@@ -48,9 +51,9 @@
             >
             <div v-show="submitted && !user.lastname" class="invalid-feedback">Last Name is required</div>
           </div>
-          <div class="form-group">
-            <button class="button is-primary">Sign Up</button>
-           
+          <div class="form-group level">
+            <button class="button is-primary arrange">Sign Up</button>
+           <p>Have existing account? Proceed to<router-link to="/login"> Login</router-link></p>
           </div>
         </form>
       </div>
@@ -128,3 +131,17 @@ export default {
   }
 };
 </script>
+
+<style>
+.arrange {
+  float: left;
+}
+.sectionTitle{
+    margin-left: 0.2em;
+    margin-bottom: 1.2em;
+}
+.loginTitle{
+    margin-left: 0.5em;
+}
+</style>
+

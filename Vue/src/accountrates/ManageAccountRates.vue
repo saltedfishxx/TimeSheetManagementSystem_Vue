@@ -76,7 +76,7 @@
                     <b-icon pack="fas" icon="edit"></b-icon>
                     <span>Update Rate</span>
                    </button>
-                   <button class="button is-danger" @click="deleteRow(props.row.rateId)">
+                   <button class="button is-danger" @click="deleteRow(props.row.rateId, $route.params.customerAccountId)">
                     <b-icon pack="fas" icon="trash-alt"></b-icon>
                     <span>Delete</span>
                    </button>
@@ -95,7 +95,7 @@
 <script>
 //import api from '@/SessionSynopsesApiService';
 import axios from "axios";
-import { router } from '../_helpers';
+import { router, authHeader } from '../_helpers';
 
 export default {
   data() {
@@ -119,11 +119,22 @@ export default {
     });
     setTimeout(() => loadingComponent.close(), 0.5 * 1000);
     this.getAll();
+
+    var custAccId = this.$route.params.customerAccountId;
   },
+//    watch: {
+//       $route: function(to, from) {
+
+//           this.getAll();
+//       }
+//   },
   methods: {
     getAll() {
       axios
-        .get("http://localhost:5000/api/CustomerAccounts/ManageAccountRates/" + this.$route.params.customerAccountId)
+        .get("http://localhost:5000/api/CustomerAccounts/ManageAccountRates/" + this.$route.params.customerAccountId,
+         {
+            headers: authHeader()
+          })
         .then(response => {
           // JSON responses are automatically parsed.
           this.data = response.data;
@@ -145,7 +156,7 @@ export default {
     back(){
         router.push({ path: `/ManageCustomerAccounts` }); 
     },
-    deleteRow(accountId) {
+    deleteRow(accountId, custId) {
         console.log(accountId);
       this.$dialog.confirm({
         title: "Deleting Rate Record",
@@ -157,16 +168,22 @@ export default {
         onConfirm: () =>  {
             console.log(accountId);
             axios
-            .delete("http://localhost:5000/api/CustomerAccounts/UpdateAccountRates/" + accountId)
+            .delete("http://localhost:5000/api/CustomerAccounts/UpdateAccountRates/" + accountId,
+             {
+            headers: authHeader()
+          })
             .then(response => {
               // JSON responses are automatically parsed.
+              this.$toast.open("Account Rate deleted!");
+              //this.forceRerender();
               this.data.splice(accountId, 1);
-              //this.$toast.open("Account Rate deleted!");
-              this.$router.go(0);
+
+              this.$forceUpdate();
+              this.$router.push("/ManageCustomerAccounts");
               //return data;
             })
             .catch(e => {
-              console.log(e.response);
+              console.log(e);
             });
           
            }

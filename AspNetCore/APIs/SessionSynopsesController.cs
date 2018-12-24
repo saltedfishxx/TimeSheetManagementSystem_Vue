@@ -17,9 +17,11 @@ using AutoMapper;
 using AspNetCore.Helpers;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace AspNetCore.APIs
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     [EnableCors("VueCorsPolicy")]
@@ -46,11 +48,9 @@ namespace AspNetCore.APIs
         public IActionResult Get()
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
-            int userId = 0;
 
-            if (identity != null)
-            {
-                //TODO: Fix code here
+			if (identity != null)
+			{
                 List<object> sessionList = new List<object>();
                 var sessions = Database.SessionSynopses
                     .Include(input => input.CreatedBy)
@@ -64,8 +64,8 @@ namespace AspNetCore.APIs
                         sessionId = oneSession.SessionSynopsisId,
                         sessionName = oneSession.SessionSynopsisName,
                         visibility = oneSession.IsVisible,
-                        createdBy = oneSession.CreatedBy,
-                        updatedBy = oneSession.UpdatedBy
+                        createdBy = oneSession.CreatedBy.UserName,
+                        updatedBy = oneSession.UpdatedBy.UserName
                     });
                 }//foreach
 
@@ -79,23 +79,20 @@ namespace AspNetCore.APIs
         public IActionResult Get(int id)
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
-            int userId = 0;
-
-
-
-
-            if (identity != null)
-            {
+			if (identity != null)
+			{
                 List<object> sessionList = new List<object>();
                 var selectedSession = Database.SessionSynopses
-                    .Where(eachSession => eachSession.SessionSynopsisId == id).Single();
+                    .Where(eachSession => eachSession.SessionSynopsisId == id)
+                    .Include(user => user.CreatedBy)
+                    .Include(user => user.UpdatedBy).Single();
                 var response = new
                 {
                     sessionId = selectedSession.SessionSynopsisId,
                     sessionName = selectedSession.SessionSynopsisName,
                     visibility = selectedSession.IsVisible,
-                    createdBy = selectedSession.CreatedBy.LastName,
-                    updatedBy = selectedSession.UpdatedBy.LastName
+                    createdBy = selectedSession.CreatedBy.UserName,
+                    updatedBy = selectedSession.UpdatedBy.UserName
                 };
 
                 return new JsonResult(response);
@@ -111,59 +108,62 @@ namespace AspNetCore.APIs
         [HttpPost]
         public IActionResult Post([FromBody] string value)
         {
-            string customMessage = "";
             var identity = HttpContext.User.Identity as ClaimsIdentity;
-            int userId = 0;
-            SessionSynopsis newSession = new SessionSynopsis();
-            var newInput = JsonConvert.DeserializeObject<dynamic>(value);
-            Console.Write(newInput);
+			int userId = 0;
+			if (identity != null)
+			{
+					IEnumerable<Claim> claims = identity.Claims;
+					//claims.Where(i=>i.Type=="username").First().Value
+					//claims.Where(i=>i.Type=="userid").First().Value
 
-            if (identity != null)
-            {
-                IEnumerable<Claim> claims = identity.Claims;
-                //claims.Where(i=>i.Type=="username").First().Value
-                //claims.Where(i=>i.Type=="userid").First().Value
+					// or
+					userId = Int32.Parse(identity.FindFirst("userid").Value);
+                    
+                    SessionSynopsis newSession = new SessionSynopsis();
+                    var newInput = JsonConvert.DeserializeObject<dynamic>(value);
+                    Console.Write(newInput);
 
-                // or
-                userId = Int32.Parse(identity.FindFirst("userid").Value);
-                //Proceed to the logic to create a new record.
-                //I prefer to place the code here because it can be executed only if user information
-                //is not empty.
-                newSession.SessionSynopsisName = newInput.sessionName.Value;
-                newSession.IsVisible = newInput.visibility.Value;
-                newSession.CreatedById = userId;
-                newSession.UpdatedById = userId;
+                    newSession.SessionSynopsisName = newInput.sessionName.Value;
+                    newSession.IsVisible = newInput.visibility.Value;
+                    newSession.CreatedById = userId;
+                    newSession.UpdatedById = userId;
 
-                Console.Write(newSession);
-                Database.SessionSynopses.Add(newSession);
+                    Console.Write(newSession);
+                    Database.SessionSynopses.Add(newSession);
 
-                Database.SaveChanges();
-                return Ok(new
-                {
-                    message = "Create Web API is called. The extracted Id is " + userId.ToString() +
-                          ". Created a record " + newSession.SessionSynopsisName
-                });
-            }
-            return BadRequest(new { message = "Unable to create record" });
+                    Database.SaveChanges();
+                    return Ok(new
+                    {
+                        message = "Create Web API is called. The extracted Id is " + userId.ToString() +
+                              ". Created a record " + newSession.SessionSynopsisName
+                    });
+                }
+                return BadRequest(new { message = "Unable to create record" });
 
+            
         }
 
         //PUT api/SessionSynopses/5
         [HttpPut("{id}")]
         public IActionResult Put(int id, [FromBody]string value)
         {
-            string customMessage = "";
             var identity = HttpContext.User.Identity as ClaimsIdentity;
-            int userId = 0;
-            
-            if (identity != null)
-            {
+			int userId = 0;
+			if (identity != null)
+			{
+					IEnumerable<Claim> claims = identity.Claims;
+					//claims.Where(i=>i.Type=="username").First().Value
+					//claims.Where(i=>i.Type=="userid").First().Value
+
+					// or
+					userId = Int32.Parse(identity.FindFirst("userid").Value);
+                    
                 var sessionChangeInput = JsonConvert.DeserializeObject<dynamic>(value);
                 var oneSession = Database.SessionSynopses
                     .Where(item => item.SessionSynopsisId == id).Single();
                 oneSession.SessionSynopsisName = sessionChangeInput.sessionName.Value;
                 oneSession.IsVisible = sessionChangeInput.visibility.Value;
-                oneSession.UpdatedById = 1;
+                oneSession.UpdatedById = userId;
 
                 Database.Update(oneSession);
                 Database.SaveChanges();
@@ -175,8 +175,8 @@ namespace AspNetCore.APIs
                 });
             }
             return BadRequest(new { message = "Unable to create record" });
-            
-        
+
+
 
         }
 
@@ -185,13 +185,18 @@ namespace AspNetCore.APIs
         public IActionResult Delete(int id)
         {
 
-            string customMessage = "Deleted Session Record";
+                       var identity = HttpContext.User.Identity as ClaimsIdentity;
+			int userId = 0;
+			if (identity != null)
+			{
+					IEnumerable<Claim> claims = identity.Claims;
+					//claims.Where(i=>i.Type=="username").First().Value
+					//claims.Where(i=>i.Type=="userid").First().Value
 
-            var identity = HttpContext.User.Identity as ClaimsIdentity;
-            int userId = 0;
+					// or
+					userId = Int32.Parse(identity.FindFirst("userid").Value);
+                    
 
-            if (identity != null)
-            {
                 var delSession = Database.SessionSynopses
                 .Single(eachSession => eachSession.SessionSynopsisId == id);
 
@@ -208,13 +213,6 @@ namespace AspNetCore.APIs
             return BadRequest(new { message = "Unable to retrieve the record" });
         }//end of Delete() Web API method
 
-        //helper method to get user info id
-        //public int GetUserIdFromUserInfo()
-        //{
-        //    string userLoginId = _userManager.GetUserName(User);
-        //    int userInfoId = Database.UserInfo.Single(input => input.LoginUserName == userLoginId)
-        //        .UserInfoId;
-        //    return userInfoId;
-        //}
+
     }
 }

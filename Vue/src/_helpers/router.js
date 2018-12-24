@@ -15,6 +15,7 @@ import CreateAccountRate from '../accountrates/CreateAccountRate'
 import UpdateAccountRate from '../accountrates/UpdateAccountRate'
 
 
+
 Vue.use(Router);
 
 export const router = new Router({
@@ -82,7 +83,7 @@ export const router = new Router({
     },
 
     // otherwise redirect to home
-    { path: '*', redirect: '/' }
+    { path: '*', redirect: '/' },  
   ]
 });
 

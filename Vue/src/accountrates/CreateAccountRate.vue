@@ -61,7 +61,7 @@
                 Create
                 </button>
             </p>
-            <a class="control" href="/ManageCustomerAccounts">
+            <a class="control" @click="$router.go(-1)">
                 <button class="button is-dark">
                 Cancel
                 </button>
@@ -84,7 +84,7 @@
 <script>
 import qs from "qs";
 import axios from "axios";
-import { router } from '../_helpers';
+import { router, authHeader } from '../_helpers';
 import moment from 'moment';
 
 axios.defaults.headers["X-Requested-With"] = "XMLHttpRequest";
@@ -125,12 +125,9 @@ export default {
               this.$route.params.customerAccountId,
 
             "'" + JSON.stringify(this.customer) + "'",
-            {
-              headers: {
-                "content-type": "application/json",
-                "Access-Control-Allow-Origin": "*"
-              }
-            }
+             {
+            headers: authHeader()
+          }
           )
           .then(response => {
             console.log(response);

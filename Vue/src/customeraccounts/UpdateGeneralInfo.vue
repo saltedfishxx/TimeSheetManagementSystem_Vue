@@ -3,7 +3,7 @@
         <div class="panel-heading level-left">
             <b-icon pack="fas" icon="plus" type="is-danger"></b-icon>
             <h2 class="subtitle is-4" style="margin-left:0.5em">
-              Create Customer Account 
+              Update Customer General Info 
             </h2>
         </div>
         <div class="box" style="margin-bottom:5em">
@@ -56,11 +56,11 @@
                 Update
                 </button>
             </p>
-            <a class="control" href="/ManageCustomerAccounts">
+            <router-link class="control" to ="/ManageCustomerAccounts">
                 <button class="button is-dark">
                 Cancel
                 </button>
-            </a>
+            </router-link>
             </div>
         </div>
     </div>
@@ -80,7 +80,7 @@
 <script>
 import qs from "qs";
 import axios from "axios";
-import { router } from '../_helpers';
+import { router, authHeader } from '../_helpers';
 import moment from 'moment';
 
 axios.defaults.headers["X-Requested-With"] = "XMLHttpRequest";
@@ -100,7 +100,10 @@ export default {
   methods: {
        getCustomer() {
       axios
-        .get("http://localhost:5000/api/CustomerAccounts/UpdateGeneralInfo/" + this.$route.params.customerAccountId)
+        .get("http://localhost:5000/api/CustomerAccounts/UpdateGeneralInfo/" + this.$route.params.customerAccountId,
+         {
+            headers: authHeader()
+          })
         .then(response => {
           // JSON responses are automatically parsed.
           this.customer = response.data;
@@ -127,11 +130,9 @@ export default {
              +"'"
           ,
           {
-            headers: {
-              "content-type": "application/json",
-              'Access-Control-Allow-Origin': '*'
-            }
+            headers: authHeader()
           }
+          
         )
         .then(response => {
           console.log(response);

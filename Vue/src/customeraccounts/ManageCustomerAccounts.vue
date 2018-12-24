@@ -21,9 +21,9 @@
         </b-field>
             </div>
             <div class="level-right">
-            <a class="control" href="/CreateCustomerAccount">
+            <router-link class="control" to="/CreateCustomerAccount">
                 <button class="button is-info"><b-icon pack="fas" icon="plus"></b-icon><p>Add Customer</p></button>
-            </a>
+            </router-link>
             </div>
             </div>
         <b-table
@@ -99,7 +99,7 @@
 <script>
 //import api from '@/SessionSynopsesApiService';
 import axios from "axios";
-import { router } from '../_helpers';
+import { router, authHeader } from '../_helpers';
 
 export default {
   data() {
@@ -162,17 +162,18 @@ export default {
         onConfirm: () =>  {
             console.log(accountId);
             axios
-            .delete("http://localhost:5000/api/CustomerAccounts/" + accountId)
+            .delete("http://localhost:5000/api/CustomerAccounts/" + accountId,
+             {headers: authHeader()})
             .then(response => {
               // JSON responses are automatically parsed.
               this.data.splice(accountId, -1);
-              this.$router.go(0);
+              router.go(0);
               //return data;
             })
             .catch(e => {
               console.log(e.response);
             });
-          this.$toast.open("Session deleted!");
+          this.$toast.open("Customer Account deleted!");
          
            }
           

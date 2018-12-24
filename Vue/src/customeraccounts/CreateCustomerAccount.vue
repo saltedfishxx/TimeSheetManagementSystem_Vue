@@ -103,11 +103,11 @@
                 Create
                 </button>
             </p>
-            <a class="control" href="/ManageCustomerAccounts">
+            <router-link class="control" to="/ManageCustomerAccounts">
                 <button class="button is-dark">
                 Cancel
                 </button>
-            </a>
+            </router-link>
             </div>
         </div>
     </div>
@@ -121,6 +121,9 @@
 }
 .labelError{
     margin-left: 20%;
+}
+.box{
+  margin-top:0;
 }
 </style>
 
