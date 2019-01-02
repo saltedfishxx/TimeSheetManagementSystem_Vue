@@ -1,5 +1,7 @@
 export function authHeader() {
-    // return authorization header with jwt token
+    // this function returns a http request header with jwt token for authorisation
+    
+    //token is retrieved from local storage when user first logged in
     let user = JSON.parse(localStorage.getItem('user'));
 
     if (user && user.token) {
@@ -11,14 +13,16 @@ export function authHeader() {
     }
 }
 
-export function authHeader2() {
-    // return authorization header with jwt token
+export function authHeaderUrlencoded() {
+    // this function returns a http request header with jwt token for authorisation
+    
+    //token is retrieved from local storage when user first logged in
     let user = JSON.parse(localStorage.getItem('user'));
 
     if (user && user.token) {
-        return { 'Authorization': "Bearer " +  user.token,
+        return { 'Authorization': "Bearer " + user.token,
         "content-type": "application/x-www-form-urlencoded",
-            'Access-Control-Allow-Origin': '*'};
+        'Access-Control-Allow-Origin': '*'};
     } else {
         return {};
     }

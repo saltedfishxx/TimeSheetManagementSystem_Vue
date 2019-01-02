@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
@@ -55,11 +54,12 @@ namespace AspNetCore.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    FirstName = table.Column<string>(type: "VARCHAR(100)", nullable: false),
-                    FullName = table.Column<string>(type: "VARCHAR(100)", nullable: false),
-                    Username = table.Column<string>(type: "VARCHAR(10)", nullable: false),
-                    PasswordHash = table.Column<string>(type: "VARBINARY(MAX)", nullable: false),
-                    PasswordSalt = table.Column<string>(type: "VARBINARY(MAX)", nullable: false)
+                    FirstName = table.Column<string>(type: "VARCHAR(200)", nullable: false),
+                    FullName = table.Column<string>(type: "VARCHAR(200)", nullable: false),
+                    Username = table.Column<string>(type: "VARCHAR(20)", nullable: false),
+                    PasswordHash = table.Column<byte[]>(type: "VARBINARY(MAX)", nullable: false),
+                    PasswordSalt = table.Column<byte[]>(type: "VARBINARY(MAX)", nullable: false),
+                    Roles = table.Column<string>(type: "VARCHAR(200)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -180,7 +180,7 @@ namespace AspNetCore.Migrations
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     AccountName = table.Column<string>(type: "VARCHAR(100)", nullable: false),
                     Comments = table.Column<string>(type: "NVARCHAR(4000)", nullable: true),
-                    IsVisible = table.Column<bool>(type: "BIT", nullable: false, defaultValue: true),
+                    IsVisible = table.Column<bool>(type: "BIT", nullable: false),
                     CreatedAt = table.Column<DateTime>(nullable: false, defaultValueSql: "GetDate()"),
                     CreatedById = table.Column<int>(nullable: false),
                     UpdatedAt = table.Column<DateTime>(nullable: false, defaultValueSql: "GetDate()"),
@@ -212,7 +212,7 @@ namespace AspNetCore.Migrations
                     SessionSynopsisName = table.Column<string>(type: "VARCHAR(100)", nullable: false),
                     CreatedById = table.Column<int>(nullable: false),
                     UpdatedById = table.Column<int>(nullable: false),
-                    IsVisible = table.Column<bool>(type: "bit", nullable: false, defaultValue: false)
+                    IsVisible = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -289,7 +289,7 @@ namespace AspNetCore.Migrations
                     EndTimeInMinutes = table.Column<int>(type: "int", nullable: false),
                     EffectiveStartDate = table.Column<DateTime>(nullable: false),
                     EffectiveEndDate = table.Column<DateTime>(nullable: true),
-                    IsVisible = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    IsVisible = table.Column<bool>(type: "bit", nullable: false),
                     CustomerAccountId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
@@ -542,9 +542,6 @@ namespace AspNetCore.Migrations
                 table: "UserInfo",
                 column: "Username",
                 unique: true);
-
-            //migrationBuilder.Sql(File.ReadAllText("migrations/setup_AspNetUsers_Insert_trigger.sql"));
-            //migrationBuilder.Sql(File.ReadAllText("migrations/setup_AspNetUsers_Update_trigger.sql"));
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

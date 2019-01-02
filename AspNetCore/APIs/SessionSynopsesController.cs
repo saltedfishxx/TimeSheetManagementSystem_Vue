@@ -18,6 +18,7 @@ using AspNetCore.Helpers;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Http;
 
 namespace AspNetCore.APIs
 {
@@ -49,27 +50,52 @@ namespace AspNetCore.APIs
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
 
-			if (identity != null)
+            int userId = 0;
+            if (identity != null)
 			{
+                
+                userId = Int32.Parse(identity.FindFirst("userid").Value);
+                var user = _userService.GetById(userId);
+                //get user role 
+                string roles = user.Roles;
+
                 List<object> sessionList = new List<object>();
+   
+
                 var sessions = Database.SessionSynopses
                     .Include(input => input.CreatedBy)
-                    .Include(input => input.UpdatedBy)
-                .Where(eachSession => eachSession.IsVisible == true);
+                    .Include(input => input.UpdatedBy);
 
                 foreach (var oneSession in sessions)
                 {
-                    sessionList.Add(new
+                    if (roles.Equals("Admin"))
                     {
-                        sessionId = oneSession.SessionSynopsisId,
-                        sessionName = oneSession.SessionSynopsisName,
-                        visibility = oneSession.IsVisible,
-                        createdBy = oneSession.CreatedBy.UserName,
-                        updatedBy = oneSession.UpdatedBy.UserName
-                    });
+                        sessionList.Add(new
+                        {
+                            sessionId = oneSession.SessionSynopsisId,
+                            sessionName = oneSession.SessionSynopsisName,
+                            visibility = oneSession.IsVisible,
+                            createdBy = oneSession.CreatedBy.UserName,
+                            updatedBy = oneSession.UpdatedBy.UserName
+                        });
+                    }
+                    else
+                    {
+                        if (oneSession.IsVisible == true)
+                        {
+                            sessionList.Add(new
+                            {
+                                sessionId = oneSession.SessionSynopsisId,
+                                sessionName = oneSession.SessionSynopsisName,
+                                visibility = oneSession.IsVisible,
+                                createdBy = oneSession.CreatedBy.UserName,
+                                updatedBy = oneSession.UpdatedBy.UserName
+                            });
+                        }
+                    }
                 }//foreach
-
                 return new JsonResult(sessionList);
+
             }
             return BadRequest(new { message = "Unable to retrieve records" });
         }
@@ -106,74 +132,115 @@ namespace AspNetCore.APIs
         //POST api/SessionSynopses
         [EnableCors("VueCorsPolicy")]
         [HttpPost]
-        public IActionResult Post([FromBody] string value)
+        public IActionResult Post([FromForm] IFormCollection webFormData)
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
 			int userId = 0;
-			if (identity != null)
-			{
-					IEnumerable<Claim> claims = identity.Claims;
-					//claims.Where(i=>i.Type=="username").First().Value
-					//claims.Where(i=>i.Type=="userid").First().Value
+            if (identity != null)
+            {
+                IEnumerable<Claim> claims = identity.Claims;
 
-					// or
-					userId = Int32.Parse(identity.FindFirst("userid").Value);
-                    
-                    SessionSynopsis newSession = new SessionSynopsis();
-                    var newInput = JsonConvert.DeserializeObject<dynamic>(value);
-                    Console.Write(newInput);
+                userId = Int32.Parse(identity.FindFirst("userid").Value);
 
-                    newSession.SessionSynopsisName = newInput.sessionName.Value;
-                    newSession.IsVisible = newInput.visibility.Value;
-                    newSession.CreatedById = userId;
-                    newSession.UpdatedById = userId;
+                SessionSynopsis newSession = new SessionSynopsis();
 
+                if(webFormData["sessionName"].ToString() == null || Convert.ToBoolean(webFormData["visibility"]) == null)
+                {
+                    string customMessage = "Unable to save record. Please try again";
+
+                    object httpFailRequestResultMessage = new { message = customMessage };
+                    return BadRequest(httpFailRequestResultMessage);
+                }
+
+                newSession.SessionSynopsisName = webFormData["sessionName"];
+                newSession.IsVisible = Convert.ToBoolean(webFormData["visibility"]);
+                newSession.CreatedById = userId;
+                newSession.UpdatedById = userId;
+
+                try
+                {
                     Console.Write(newSession);
                     Database.SessionSynopses.Add(newSession);
 
                     Database.SaveChanges();
-                    return Ok(new
-                    {
-                        message = "Create Web API is called. The extracted Id is " + userId.ToString() +
-                              ". Created a record " + newSession.SessionSynopsisName
-                    });
                 }
-                return BadRequest(new { message = "Unable to create record" });
+                catch (Exception ex)
+                {
+                    if (ex.InnerException != null)
+                    {
+                        if (ex.InnerException.Message.Contains("SessionSynopses_SessionSynopsisName_UniqueConstraint") == true)
+                        {
+                            string customMessage = "Unable to save record due to another session having the same name: " + webFormData["sessionName"];
 
-            
+                            object httpFailRequestResultMessage = new { message = customMessage };
+                            return BadRequest(httpFailRequestResultMessage);
+                        }
+                    }
+                    return BadRequest(ex);
+                }//end try catch
+                return Ok(new
+                {
+                    message = "Create Web API is called. The extracted Id is " + userId.ToString() +
+                             ". Created a record " + newSession.SessionSynopsisName
+                });
+            }
+            else
+            {
+                 return BadRequest(new { message = "Unable to create record" });
+            }
         }
 
         //PUT api/SessionSynopses/5
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody]string value)
+        public IActionResult Put(int id, [FromForm] IFormCollection webFormData)
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
 			int userId = 0;
 			if (identity != null)
 			{
 					IEnumerable<Claim> claims = identity.Claims;
-					//claims.Where(i=>i.Type=="username").First().Value
-					//claims.Where(i=>i.Type=="userid").First().Value
 
-					// or
 					userId = Int32.Parse(identity.FindFirst("userid").Value);
                     
-                var sessionChangeInput = JsonConvert.DeserializeObject<dynamic>(value);
                 var oneSession = Database.SessionSynopses
                     .Where(item => item.SessionSynopsisId == id).Single();
-                oneSession.SessionSynopsisName = sessionChangeInput.sessionName.Value;
-                oneSession.IsVisible = sessionChangeInput.visibility.Value;
+
+                if (webFormData["sessionName"].ToString() == null || Convert.ToBoolean(webFormData["visibility"]) == null)
+                {
+                    string customMessage = "Unable to update record. Please try again";
+
+                    object httpFailRequestResultMessage = new { message = customMessage };
+                    return BadRequest(httpFailRequestResultMessage);
+
+                }
+                oneSession.SessionSynopsisName = webFormData["sessionName"];
+                oneSession.IsVisible = Convert.ToBoolean(webFormData["visibility"]);
                 oneSession.UpdatedById = userId;
 
-                Database.Update(oneSession);
-                Database.SaveChanges();
+                try
+                {
+                    Database.Update(oneSession);
+                    Database.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    if (ex.InnerException != null)
+                    {
+                        if (ex.InnerException.Message.Contains("SessionSynopses_SessionSynopsisName_UniqueConstraint") == true)
+                        {
+                            string customMessage = "Unable to save record due to another session having the same name: " + webFormData["sessionName"];
 
+                            object httpFailRequestResultMessage = new { message = customMessage };
+                            return BadRequest(httpFailRequestResultMessage);
+                        }
+                    }
+                }//end try catch
                 return Ok(new
                 {
                     message = "Create Web API is called. The extracted Id is " + userId.ToString() +
                             ". Updated a record " + oneSession.SessionSynopsisName
                 });
-            }
+            }else
             return BadRequest(new { message = "Unable to create record" });
 
 
@@ -189,27 +256,33 @@ namespace AspNetCore.APIs
 			int userId = 0;
 			if (identity != null)
 			{
-					IEnumerable<Claim> claims = identity.Claims;
-					//claims.Where(i=>i.Type=="username").First().Value
-					//claims.Where(i=>i.Type=="userid").First().Value
+				IEnumerable<Claim> claims = identity.Claims;
 
-					// or
-					userId = Int32.Parse(identity.FindFirst("userid").Value);
-                    
-
-                var delSession = Database.SessionSynopses
+				userId = Int32.Parse(identity.FindFirst("userid").Value);
+               
+                 var delSession = Database.SessionSynopses
                 .Single(eachSession => eachSession.SessionSynopsisId == id);
 
-                Database.SessionSynopses.Remove(delSession);
-                //Tell the db model to commit/persist the changes to the database, 
-                //I use the following command.
-                Database.SaveChanges();
+                try
+                {
+
+                    Database.SessionSynopses.Remove(delSession);
+                    Database.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                   
+                            return BadRequest("Unable to delete record");
+                        
+                    
+                }//end try catch
+
                 return Ok(new
                 {
                     message = "Delete Web API is called. The extracted Id is " + userId.ToString() +
                                             ". Deleted a record " + delSession.SessionSynopsisName
                 });
-            }
+            }else
             return BadRequest(new { message = "Unable to retrieve the record" });
         }//end of Delete() Web API method
 

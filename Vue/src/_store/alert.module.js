@@ -1,3 +1,5 @@
+//This js file contains methods to handle different kinds of alerts
+
 export const alert = {
     namespaced: true,
     state: {

@@ -22,8 +22,9 @@
       </div>
 
       <div id="navbarBasicExample" class="navbar-menu">
-        <div class="navbar-start" style="padding-left:1em">
+        <div class="navbar-start" style="padding-left:1em" v-show="activeUser">
           <router-link class="navbar-item" to="/">Home</router-link>
+          <router-link class="navbar-item" to="/ManageUsers" v-show="isAdmin">Users</router-link>
           <div class="navbar-item has-dropdown is-hoverable">
             <router-link class="navbar-link" to="/ManageSessionSynopses">Session Synopses</router-link>
 
@@ -64,7 +65,7 @@
       <transition name="fade" mode="out-in">
         <router-view :key="$route.fullPath"></router-view>
       </transition>
-    </div>
+  </div>
     <link
       rel="stylesheet"
       href="//cdn.materialdesignicons.com/2.5.94/css/materialdesignicons.min.css"
@@ -74,29 +75,51 @@
 </template>
 
 <script>
+// global.jQuery = require('jquery');
+// var $ = global.jQuery;
+// widows.$ = $;
+
 export default {
   name: "app",
   computed: {
     activeUser() {
+      console.log(this.$store.state.authentication.user)
       return this.$store.state.authentication.user;
+    },
+    isAdmin () {
+      let user = this.$store.state.authentication.user;
+      if (user != null) {
+        if(user.user.roles == "Admin"){
+          return true;
+        }else {
+          return false;
+        }
+      }
     }
   },
+  // created(){
+  // $(".navbar-burger").click(function() {
+  
+  //       // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+  //       $(".navbar-burger").toggleClass("is-active");
+  //       $(".navbar-menu").toggleClass("is-active");
+  
+  //   });
+  
+  // },
   methods: {
     login() {},
     async logout() {
       this.$dialog.confirm({
         title: "Log Out",
-        message:
-          "Are you sure you want to <b>Logout</b>?",
+        message: "Are you sure you want to <b>Logout</b>?",
         confirmText: "Logout",
         type: "is-danger",
         hasIcon: true,
-        onConfirm: () =>  {
+        onConfirm: () => {
           this.$toast.open("Logging out...");
-          this.$router.push('/login' );
-           }
-          
-    
+          this.$router.push("/login");
+        }
       });
     },
     currentUser: function() {
@@ -140,4 +163,6 @@ export default {
 .fade-leave-active {
   opacity: 0;
 }
+
+
 </style>

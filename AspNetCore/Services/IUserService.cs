@@ -14,7 +14,7 @@ namespace AspNetCore.Services
         IEnumerable<UserInfo> GetAll();
         UserInfo GetById(int id);
         UserInfo Create(UserInfo user, string password);
-        void Update(UserInfo user, string password = null);
+        void Update(UserInfo user);
         void Delete(int id);
     }
 
@@ -82,34 +82,34 @@ namespace AspNetCore.Services
             return user;
         }
 
-        public void Update(UserInfo userParam, string inPassword = null)
+        public void Update(UserInfo userParam)
         {
             var user = _context.UserInfo.Find(userParam.Id);
 
             if (user == null)
                 throw new AppException("User not found");
 
-            if (userParam.UserName != user.UserName)
-            {
-                // username has changed so check if the new username is already taken
-                if (_context.UserInfo.Any(x => x.UserName == userParam.UserName))
-                    throw new AppException("User name " + userParam.UserName + " is already taken");
-            }
+            //if (userParam.UserName != user.UserName)
+            //{
+            //    // username has changed so check if the new username is already taken
+            //    if (_context.UserInfo.Any(x => x.UserName == userParam.UserName))
+            //        throw new AppException("User name " + userParam.UserName + " is already taken");
+            //}
 
             // update user properties
             user.FirstName = userParam.FirstName;
             user.LastName = userParam.LastName;
-            user.UserName = userParam.UserName;
+            user.Roles = userParam.Roles;
 
             // update password if it was entered
-            if (!string.IsNullOrWhiteSpace(inPassword))
-            {
-                byte[] passwordHash, passwordSalt;
-                CreatePasswordHash(inPassword, out passwordHash, out passwordSalt);
+            //if (!string.IsNullOrWhiteSpace(inPassword))
+            //{
+            //    byte[] passwordHash, passwordSalt;
+            //    CreatePasswordHash(inPassword, out passwordHash, out passwordSalt);
 
-                user.PasswordHash = passwordHash;
-                user.PasswordSalt = passwordSalt;
-            }
+            //    user.PasswordHash = passwordHash;
+            //    user.PasswordSalt = passwordSalt;
+            //}
 
             _context.UserInfo.Update(user);
             _context.SaveChanges();

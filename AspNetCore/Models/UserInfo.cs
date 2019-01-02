@@ -17,6 +17,7 @@ namespace AspNetCore.Models
         public string UserName { get; set; }
         public byte[] PasswordHash { get; set; }
         public byte[] PasswordSalt { get; set; }
+        public string Roles { get; set; }
 
         public List<InstructorAccount> InstructorAccounts { get; set; }
         public List<TimeSheet> TimeSheets { get; set; }

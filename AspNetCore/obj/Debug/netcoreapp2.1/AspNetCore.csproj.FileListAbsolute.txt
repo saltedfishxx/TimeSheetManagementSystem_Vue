@@ -12,3 +12,17 @@ D:\Desktop\TimeSheetManagementSystem_Vue\AspNetCore\obj\Debug\netcoreapp2.1\AspN
 D:\Desktop\TimeSheetManagementSystem_Vue\AspNetCore\obj\Debug\netcoreapp2.1\AspNetCore.dll
 D:\Desktop\TimeSheetManagementSystem_Vue\AspNetCore\obj\Debug\netcoreapp2.1\AspNetCore.pdb
 D:\Desktop\TimeSheetManagementSystem_Vue\AspNetCore\obj\Debug\netcoreapp2.1\AspNetCore.csprojAssemblyReference.cache
+D:\Desktop\YR 2 SEM 2\ST0257 - WEBA\CA1\TimeSheetManagementSystem_Vue\AspNetCore\bin\Debug\netcoreapp2.1\AspNetCore.deps.json
+D:\Desktop\YR 2 SEM 2\ST0257 - WEBA\CA1\TimeSheetManagementSystem_Vue\AspNetCore\bin\Debug\netcoreapp2.1\AspNetCore.runtimeconfig.json
+D:\Desktop\YR 2 SEM 2\ST0257 - WEBA\CA1\TimeSheetManagementSystem_Vue\AspNetCore\bin\Debug\netcoreapp2.1\AspNetCore.runtimeconfig.dev.json
+D:\Desktop\YR 2 SEM 2\ST0257 - WEBA\CA1\TimeSheetManagementSystem_Vue\AspNetCore\bin\Debug\netcoreapp2.1\AspNetCore.dll
+D:\Desktop\YR 2 SEM 2\ST0257 - WEBA\CA1\TimeSheetManagementSystem_Vue\AspNetCore\bin\Debug\netcoreapp2.1\AspNetCore.pdb
+D:\Desktop\YR 2 SEM 2\ST0257 - WEBA\CA1\TimeSheetManagementSystem_Vue\AspNetCore\obj\Debug\netcoreapp2.1\AspNetCore.csprojAssemblyReference.cache
+D:\Desktop\YR 2 SEM 2\ST0257 - WEBA\CA1\TimeSheetManagementSystem_Vue\AspNetCore\obj\Debug\netcoreapp2.1\AspNetCore.csproj.CoreCompileInputs.cache
+D:\Desktop\YR 2 SEM 2\ST0257 - WEBA\CA1\TimeSheetManagementSystem_Vue\AspNetCore\obj\Debug\netcoreapp2.1\AspNetCore.RazorAssemblyInfo.cache
+D:\Desktop\YR 2 SEM 2\ST0257 - WEBA\CA1\TimeSheetManagementSystem_Vue\AspNetCore\obj\Debug\netcoreapp2.1\AspNetCore.RazorAssemblyInfo.cs
+D:\Desktop\YR 2 SEM 2\ST0257 - WEBA\CA1\TimeSheetManagementSystem_Vue\AspNetCore\obj\Debug\netcoreapp2.1\AspNetCore.AssemblyInfoInputs.cache
+D:\Desktop\YR 2 SEM 2\ST0257 - WEBA\CA1\TimeSheetManagementSystem_Vue\AspNetCore\obj\Debug\netcoreapp2.1\AspNetCore.AssemblyInfo.cs
+D:\Desktop\YR 2 SEM 2\ST0257 - WEBA\CA1\TimeSheetManagementSystem_Vue\AspNetCore\obj\Debug\netcoreapp2.1\AspNetCore.RazorTargetAssemblyInfo.cache
+D:\Desktop\YR 2 SEM 2\ST0257 - WEBA\CA1\TimeSheetManagementSystem_Vue\AspNetCore\obj\Debug\netcoreapp2.1\AspNetCore.dll
+D:\Desktop\YR 2 SEM 2\ST0257 - WEBA\CA1\TimeSheetManagementSystem_Vue\AspNetCore\obj\Debug\netcoreapp2.1\AspNetCore.pdb

@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AspNetCore.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20181221080645_setupdb")]
+    [Migration("20181230175949_setupdb")]
     partial class setupdb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -44,10 +44,8 @@ namespace AspNetCore.Migrations
                         .HasColumnType("int");
 
                     b.Property<bool>("IsVisible")
-                        .ValueGeneratedOnAdd()
                         .HasColumnName("IsVisible")
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
+                        .HasColumnType("bit");
 
                     b.Property<int>("StartTimeInMinutes")
                         .HasColumnName("StartTimeInMinutes")
@@ -166,10 +164,8 @@ namespace AspNetCore.Migrations
                     b.Property<int>("CreatedById");
 
                     b.Property<bool>("IsVisible")
-                        .ValueGeneratedOnAdd()
                         .HasColumnName("IsVisible")
-                        .HasColumnType("BIT")
-                        .HasDefaultValue(true);
+                        .HasColumnType("BIT");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
@@ -248,10 +244,8 @@ namespace AspNetCore.Migrations
                     b.Property<int>("CreatedById");
 
                     b.Property<bool>("IsVisible")
-                        .ValueGeneratedOnAdd()
                         .HasColumnName("IsVisible")
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
+                        .HasColumnType("bit");
 
                     b.Property<string>("SessionSynopsisName")
                         .IsRequired()
@@ -412,27 +406,32 @@ namespace AspNetCore.Migrations
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnName("FirstName")
-                        .HasColumnType("VARCHAR(100)");
+                        .HasColumnType("VARCHAR(200)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnName("FullName")
-                        .HasColumnType("VARCHAR(100)");
+                        .HasColumnType("VARCHAR(200)");
 
-                    b.Property<string>("PasswordHash")
+                    b.Property<byte[]>("PasswordHash")
                         .IsRequired()
                         .HasColumnName("PasswordHash")
-                        .HasColumnType("CHAR(128)");
+                        .HasColumnType("VARBINARY(MAX)");
 
-                    b.Property<string>("PasswordSalt")
+                    b.Property<byte[]>("PasswordSalt")
                         .IsRequired()
                         .HasColumnName("PasswordSalt")
-                        .HasColumnType("CHAR(128)");
+                        .HasColumnType("VARBINARY(MAX)");
+
+                    b.Property<string>("Roles")
+                        .IsRequired()
+                        .HasColumnName("Roles")
+                        .HasColumnType("VARCHAR(200)");
 
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasColumnName("Username")
-                        .HasColumnType("VARCHAR(10)");
+                        .HasColumnType("VARCHAR(20)");
 
                     b.HasKey("Id")
                         .HasName("PrimaryKey_UserInfoId");

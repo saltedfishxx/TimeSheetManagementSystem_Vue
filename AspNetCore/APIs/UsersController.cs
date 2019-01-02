@@ -40,6 +40,7 @@ namespace AspNetCore.Controllers
         [HttpPost("signin")]
         public IActionResult SignIn([FromForm]IFormCollection inFormData)
         {
+            //to get data from IForm --> inFormData["dataname"]
             var user = _userService.Authenticate(inFormData["username"], inFormData["password"]);
 
             if (user == null)
@@ -52,8 +53,9 @@ namespace AspNetCore.Controllers
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                                 new Claim(ClaimTypes.Name, user.Id.ToString() ),
-                       new Claim("username", user.UserName.ToString()),
-                                new Claim("userid", user.Id.ToString())
+                                new Claim("username", user.UserName.ToString()),
+                                new Claim("userid", user.Id.ToString()),
+                                new Claim("role", user.Roles.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -69,7 +71,8 @@ namespace AspNetCore.Controllers
                     userId = user.Id,
                     userName = user.UserName,
                     firstName = user.FirstName,
-                    lastName = user.LastName
+                    lastName = user.LastName,
+                    roles = user.Roles
                 },
                 token = tokenString
             });
@@ -84,7 +87,8 @@ namespace AspNetCore.Controllers
             {
                 FirstName = inFormData["firstname"],
                 LastName = inFormData["lastname"],
-                UserName = inFormData["username"]
+                UserName = inFormData["username"],
+                Roles = inFormData["roles"]
             };
             string password = inFormData["password"];
             try
@@ -115,6 +119,8 @@ namespace AspNetCore.Controllers
                 {
                     firstName = user.FirstName,
                     lastName = user.LastName,
+                    username = user.UserName,
+                    roles = user.Roles,
                     userId = user.Id
                 });
             }
@@ -128,9 +134,11 @@ namespace AspNetCore.Controllers
 
             return Ok(new
             {
-                id = user.Id,
-                firstName = user.FirstName,
-                lastName = user.LastName
+                firstname = user.FirstName,
+                lastname = user.LastName,
+                username = user.UserName,
+                roles = user.Roles,
+                userId = user.Id
             });
         }
 
@@ -149,14 +157,14 @@ namespace AspNetCore.Controllers
                 Id = id,
                 FirstName = inFormData["firstname"],
                 LastName = inFormData["lastname"],
-                UserName = inFormData["username"],
+                Roles = inFormData["roles"]
       
             };
 
             try
             {
                 // save 
-                _userService.Update(user, inFormData["password"]);
+                _userService.Update(user);
                 return Ok(new { message = "Completed user profile update." });
             }
             catch (AppException ex)

@@ -2,6 +2,8 @@ import { userService } from '../_services';
 import { router } from '../_helpers';
 import Vue from 'vue';
 
+//This js file is used to handle authentication when the user first logged in
+//it also has a state variable to show if user is active or not
 const user = JSON.parse(localStorage.getItem('user'));
 const initialState = user
     ? { status: { loggedIn: true }, user }

@@ -12006,11 +12006,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Desktop\\TimeSheetManagementSystem_Vue\\AspNetCore\\AspNetCore.csproj",
+      "projectUniqueName": "D:\\Desktop\\YR 2 SEM 2\\ST0257 - WEBA\\CA1\\TimeSheetManagementSystem_Vue\\AspNetCore\\AspNetCore.csproj",
       "projectName": "AspNetCore",
-      "projectPath": "D:\\Desktop\\TimeSheetManagementSystem_Vue\\AspNetCore\\AspNetCore.csproj",
+      "projectPath": "D:\\Desktop\\YR 2 SEM 2\\ST0257 - WEBA\\CA1\\TimeSheetManagementSystem_Vue\\AspNetCore\\AspNetCore.csproj",
       "packagesPath": "C:\\Users\\may_s\\.nuget\\packages\\",
-      "outputPath": "D:\\Desktop\\TimeSheetManagementSystem_Vue\\AspNetCore\\obj\\",
+      "outputPath": "D:\\Desktop\\YR 2 SEM 2\\ST0257 - WEBA\\CA1\\TimeSheetManagementSystem_Vue\\AspNetCore\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"

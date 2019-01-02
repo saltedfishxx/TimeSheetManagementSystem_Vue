@@ -1,7 +1,9 @@
 import config from 'config';
-import { authHeader, authHeader2 } from '../_helpers';
+import {authHeader} from '../_helpers';
 import qs from 'qs';
 
+//This js file is used to handle user services namely login/logout functions 
+//as well as handling responses
 
 export const userService = {
     login,
@@ -45,7 +47,15 @@ function getAll() {
         headers: authHeader()
     };
 
-    return fetch(`${config.apiUrl}/api/Users`, requestOptions).then(handleResponse);
+    return fetch(`${config.apiUrl}/api/Users`, requestOptions).then(handleResponse).catch(error => {
+        if (!error.response) {
+            // network error
+            this.errorStatus = 'Error: Network Error';
+        } else {
+            this.errorStatus = error.response.data.message;
+        }
+        return Promise.reject(errorStatus)
+      })
 }
 
 function handleResponse(response) {
@@ -57,7 +67,10 @@ function handleResponse(response) {
                 logout();
                 location.reload(true);
             }
-
+            if(response.status === 404){
+                const error = (data && data.message) || response.statusText || "Cannot connect to server";
+                return Promise.reject(error);
+            }
             const error = (data && data.message) || response.statusText;
             return Promise.reject(error);
         }

@@ -73,7 +73,7 @@ namespace AspNetCore.Data
                 .Property(input => input.IsVisible)
                 .HasColumnName("IsVisible")
                 .HasColumnType("bit")
-                .HasDefaultValue(false)
+                //.HasDefaultValue(false)
                 .IsRequired(true);
             //Enforce unique constraint on SessionSynopsisName
             modelBuilder.Entity<SessionSynopsis>()
@@ -106,7 +106,7 @@ namespace AspNetCore.Data
                 .Property(input => input.IsVisible)
                 .HasColumnName("IsVisible")
                 .HasColumnType("BIT")
-                .HasDefaultValue(true)
+                //.HasDefaultValue(true)
                 .IsRequired(true);
 
             modelBuilder.Entity<CustomerAccount>()
@@ -203,6 +203,12 @@ namespace AspNetCore.Data
                .Property(input => input.PasswordSalt)
                .HasColumnName("PasswordSalt")
                .HasColumnType("VARBINARY(MAX)")
+               .IsRequired(true);
+
+            modelBuilder.Entity<UserInfo>()
+               .Property(input => input.Roles)
+               .HasColumnName("Roles")
+               .HasColumnType("VARCHAR(200)")
                .IsRequired(true);
 
             //Enforce unique constraint on StaffId
@@ -309,7 +315,7 @@ namespace AspNetCore.Data
                 .Property(input => input.IsVisible)
                 .HasColumnName("IsVisible")
                 .HasColumnType("bit")
-                .HasDefaultValue(true)
+                //.HasDefaultValue(true)
                 .IsRequired(true);
 
             //----------- Defining AccountDetail Entity - End --------------
