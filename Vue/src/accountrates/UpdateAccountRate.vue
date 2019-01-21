@@ -19,6 +19,7 @@
                   class="input"
                   :class="{'input is-danger' : hasRateError }"
                   type="number"
+                  pattern="[0-9]"
                   placeholder="e.g. 100"
                 >
                 <label :class="{'error' : hasRateError }" v-if="hasRateError">Rate hour required</label>

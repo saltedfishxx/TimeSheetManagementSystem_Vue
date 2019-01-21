@@ -62,7 +62,7 @@
             <span>{{ props.row.updatedBy }}</span>
           </b-table-column>
 
-          <b-table-column :visible="checkRole" field="visibility" label="Visibility" sortable>
+          <b-table-column :visible="checkRole" field="visibility" label="Visible" sortable>
             <b-icon pack="fas" icon="check" v-if="props.row.visibility"></b-icon>
             <b-icon pack="fas" icon="times" v-else></b-icon>
           </b-table-column>

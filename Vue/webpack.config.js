@@ -5,6 +5,9 @@ require("babel-polyfill");
 module.exports = {
     mode: 'development',
     resolve: {
+        alias: {
+            'vue$': 'vue/dist/vue.esm.js',
+          },
         extensions: ['.js', '.vue'],
 
     },
@@ -26,6 +29,10 @@ module.exports = {
                 test: /\.(gif|svg|jpg|png)$/,
                 loader: "file-loader",
               },
+              {
+                test: /\.css$/,
+                loader:[ 'style-loader', 'css-loader' ]
+        }
         ],
        
     },

@@ -29,6 +29,10 @@ import CreateAccountRate from '../accountrates/CreateAccountRate'
 import UpdateAccountRate from '../accountrates/UpdateAccountRate'
 
 
+//Account Details
+import CreateAccountDetail from '../accountdetails/CreateAccountDetail'
+import ManageAccountDetails from '../accountdetails/ManageAccountDetails'
+import UpdateAccountDetail from '../accountdetails/UpdateAccountDetail'
 
 Vue.use(Router);
 
@@ -110,7 +114,21 @@ export const router = new Router({
       name: 'UpdateUser',
       component: UpdateUser
     },
-
+    {
+      path: '/CreateAccountDetail/:customerAccountId',
+      name: 'CreateAccountDetail',
+      component: CreateAccountDetail
+    },
+    {
+      path: '/ManageAccountDetails/:customerAccountId',
+      name: 'ManageAccountDetails',
+      component: ManageAccountDetails
+    },
+    {
+      path: '/UpdateAccountDetail/:accId',
+      name: 'UpdateAccountDetail',
+      component: UpdateAccountDetail
+    },
     // otherwise redirect to home
     { path: '*', redirect: '/' },
   ]
@@ -120,7 +138,7 @@ export const router = new Router({
 router.beforeEach((to, from, next) => {
   let visited = false;
   //public pages such as login and signup does not require user to log in first
-  const publicPages = ['/login', '/Welcome'];
+  const publicPages = ['/login', '/Welcome', '/CreateAccountDetail'];
 
   const authRequired = !publicPages.includes(to.path);
   const loggedIn = localStorage.getItem('user');

@@ -67,7 +67,7 @@
             field="numAccRates"
             label="No. Rates"
             sortable
-            style="width:10%"
+            style="width:7%"
           >{{ props.row.numAccRates }}</b-table-column>
 
           <b-table-column field="updatedBy" label="Updated By" sortable>
@@ -77,24 +77,28 @@
             <span>{{ props.row.updatedAt}}</span>
           </b-table-column>
 
-          <b-table-column :visible="checkRole" field="visibility" label="Visibility" sortable>
+          <b-table-column :visible="checkRole" field="visibility" label="Visible" sortable>
             <b-icon pack="fas" icon="check" v-if="props.row.visibility"></b-icon>
             <b-icon pack="fas" icon="times" v-else></b-icon>
           </b-table-column>
 
           <b-table-column custom-key="actions">
             <button
-              class="button is-primary"
+              class="button is-primary buttonStyle"
               @click="updateGeneralInfo(props.row.customerAccountId)"
             >
               <b-icon pack="fas" icon="edit"></b-icon>
               <span>Update Cust Info</span>
             </button>
-            <button class="button is-info" @click="manageAccountRates(props.row.customerAccountId)">
+            <button class="button is-info buttonStyle" @click="manageAccountRates(props.row.customerAccountId)">
               <b-icon pack="fas" icon="dollar-sign"></b-icon>
               <span>Manage Rates/Hour</span>
             </button>
-            <button class="button is-danger" @click="deleteRow(props.row.customerAccountId)">
+            <button class="button is-link buttonStyle" @click="manageAccountDetail(props.row.customerAccountId)">
+              <b-icon pack="fas" icon="clipboard"></b-icon>
+              <span>Manage Account Details</span>
+            </button>
+            <button class="button is-danger buttonStyle" @click="deleteRow(props.row.customerAccountId)">
               <b-icon pack="fas" icon="trash-alt"></b-icon>
               <span>Delete</span>
             </button>
@@ -171,6 +175,9 @@ export default {
     manageAccountRates(customerAccountId) {
       router.push({ path: `/ManageAccountRates/${customerAccountId}` });
     },
+    manageAccountDetail(customerAccountId){
+      router.push({ path: `/ManageAccountDetails/${customerAccountId}` });
+    },
     deleteRow(accountId) {
       console.log(accountId);
       this.$dialog.confirm({
@@ -219,5 +226,9 @@ export default {
 }
 .panelStyle {
   margin-top: 2em;
+}
+.buttonStyle {
+  margin-top: 0.5em;
+  width: 250px;
 }
 </style>

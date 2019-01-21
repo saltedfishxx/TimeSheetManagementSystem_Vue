@@ -10,9 +10,9 @@
 
         <a
           role="button"
-          class="navbar-burger burger"
+          class="navbar-burger navbar-end"
           aria-label="menu"
-          aria-expanded="false"
+           @click="showNav = !showNav" :class="{ 'is-active': showNav }"
           data-target="navbarBasicExample"
         >
           <span aria-hidden="true"></span>
@@ -21,7 +21,7 @@
         </a>
       </div>
 
-      <div id="navbarBasicExample" class="navbar-menu">
+      <div id="navbarBasicExample" class="navbar-menu" :class="{ 'is-active': showNav }">
         <div class="navbar-start" style="padding-left:1em" v-show="activeUser">
           <router-link class="navbar-item" to="/">Home</router-link>
           <router-link class="navbar-item" to="/ManageUsers" v-show="isAdmin">Users</router-link>
@@ -81,6 +81,11 @@
 
 export default {
   name: "app",
+  data(){
+    return{
+    showNav: false
+    }
+  },
   computed: {
     activeUser() {
       console.log(this.$store.state.authentication.user)

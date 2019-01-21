@@ -10,6 +10,7 @@ import 'babel-polyfill';
 Vue.config.productionTip = false
 Vue.use(Buefy)
 
+
 new Vue({
     el: '#app',
     router,
