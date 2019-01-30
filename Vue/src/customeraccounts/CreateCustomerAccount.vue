@@ -165,12 +165,10 @@
 
 <script>
 import qs from "qs";
-import axios from "axios";
 import { router, authHeader, authHeaderUrlencoded } from "../_helpers";
 import moment from "moment";
+import api from "../_services/restful.service";
 import ManageCustomerAccountsVue from "./ManageCustomerAccounts.vue";
-
-axios.defaults.headers["X-Requested-With"] = "XMLHttpRequest";
 
 export default {
   data() {
@@ -188,15 +186,14 @@ export default {
   },
   methods: {
     async createAccount() {
-      console.log("'" + JSON.stringify(this.customer) + "'");
-
       var dateA = moment(this.customer.startDate, "MM-DD-YYYY"); // replace format by your one
       var dateB = moment(this.customer.endDate, "MM-DD-YYYY");
       const numOnly = new RegExp("^[0-9]*$");
 
-      if(numOnly.test(this.customer.rateHour) == false){
+      //validation
+      if (numOnly.test(this.customer.rateHour) == false) {
         this.hasRateError = true;
-      }else {
+      } else {
         this.hasError = false;
       }
       if (
@@ -207,7 +204,11 @@ export default {
       } else {
         this.hasError = false;
       }
-      if (this.customer.rateHour == null || this.customer.rateHour == 0 || this.customer.rateHour == "") {
+      if (
+        this.customer.rateHour == null ||
+        this.customer.rateHour == 0 ||
+        this.customer.rateHour == ""
+      ) {
         this.hasRateError = true;
       } else {
         this.hasRateError = false;
@@ -231,40 +232,33 @@ export default {
         this.hasRateError = false;
         this.hasStartDateError = false;
         this.hasClashError = false;
-        axios
-          .post(
-            "http://localhost:5000/api/CustomerAccounts/",
 
-            qs.stringify(this.customer),
-            {
-              headers: authHeaderUrlencoded()
-            }
-          )
-          .then(response => {
-            console.log(response);
-             this.customer = {
-          sessionName: "",
-          comments: "",
-          rateHour: "",
-          startDate: null,
-          endDate: null,
-          visibility: true
-        };
-        // go back to previous page
-        router.push("/ManageCustomerAccounts");
-          })
-          .catch(error => {
-            console.log(error);
-                     this.$snackbar.open({
-                    duration: 3000,
-                    message: error.message + ". There is an account with the existing name.",
-                    type: 'is-warning',
-                    position: 'is-top',  
-                });
-            
-          });
-
-       
+        try {
+          await api
+            .create("/CustomerAccounts/", qs.stringify(this.customer))
+            .catch(error => {
+              console.log(error);
+              this.$snackbar.open({
+                duration: 3000,
+                message:
+                  error.message +
+                  ". There is an account with the existing name.",
+                type: "is-warning",
+                position: "is-top"
+              });
+            });
+        } finally {
+          this.customer = {
+            sessionName: "",
+            comments: "",
+            rateHour: "",
+            startDate: null,
+            endDate: null,
+            visibility: true
+          };
+          // go back to previous page
+          router.push("/ManageCustomerAccounts");
+        }
       }
     }
   }

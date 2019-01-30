@@ -20,11 +20,17 @@
           </div>
           <div class="form-group">
             <div class="field is-horizontal">
-            <label for="password">Password</label>
-            <div type="password" @click="switchVisibility">
-              <b-icon v-if="eyeToggle" pack="fas" icon="eye-slash" size="is-small" style="margin-left:1em;"></b-icon>
-              <b-icon v-else pack="fas" icon="eye" size="is-small" style="margin-left:1em;"></b-icon>
-            </div>
+              <label for="password">Password</label>
+              <div type="password" @click="switchVisibility">
+                <b-icon
+                  v-if="eyeToggle"
+                  pack="fas"
+                  icon="eye-slash"
+                  size="is-small"
+                  style="margin-left:1em;"
+                ></b-icon>
+                <b-icon v-else pack="fas" icon="eye" size="is-small" style="margin-left:1em;"></b-icon>
+              </div>
             </div>
             <input
               :type="passwordFieldType"
@@ -79,11 +85,10 @@
           <div class="form-group">
             <br>
             <button class="button is-primary arrange">Create User</button>
-              <router-link class="control" to="/ManageUsers">
-          <button class="button is-dark" style="margin-left: 1em">Cancel</button>
-        </router-link>
+            <router-link class="control" to="/ManageUsers">
+              <button class="button is-dark" style="margin-left: 1em">Cancel</button>
+            </router-link>
           </div>
-          
         </form>
       </div>
     </div>
@@ -95,6 +100,7 @@ import qs from "qs";
 import axios from "axios";
 import { router, authHeader, authHeaderUrlencoded } from "../_helpers";
 import moment from "moment";
+import { userService } from "../_services";
 
 axios.defaults.headers["X-Requested-With"] = "XMLHttpRequest";
 
@@ -108,7 +114,7 @@ export default {
         password: "",
         roles: ""
       },
-      passwordFieldType: 'password',
+      passwordFieldType: "password",
       eyeToggle: false,
       submitted: false
     };
@@ -116,29 +122,20 @@ export default {
   methods: {
     signup(collectedUser) {
       console.log("data", qs.stringify(collectedUser));
-      axios
-        .post(
-          "http://localhost:5000/api/Users/signup",
-
-          qs.stringify(collectedUser),
-
-          {
-            headers: authHeaderUrlencoded()
-          }
-        )
+      userService
+        .createUser(collectedUser)
         .then(response => {
           console.log(response);
         })
         .catch(error => {
           console.log(error);
-           this.$snackbar.open({
-                    duration: 3000,
-                    message: error.response,
-                    type: 'is-danger',
-                    position: 'is-top',
-                    indefinite: true,
-                   
-                })
+          this.$snackbar.open({
+            duration: 3000,
+            message: error.response,
+            type: "is-danger",
+            position: "is-top",
+            indefinite: true
+          });
         });
 
       this.user = {
@@ -153,21 +150,25 @@ export default {
       router.push({ path: "/ManageUsers" });
     },
     switchVisibility() {
-      this.passwordFieldType = this.passwordFieldType === 'password' ? 'text' : 'password'
-      this.eyeToggle = this.eyeToggle === false ? true : false
+      this.passwordFieldType =
+        this.passwordFieldType === "password" ? "text" : "password";
+      this.eyeToggle = this.eyeToggle === false ? true : false;
     },
     handleSubmit(e) {
       this.submitted = true;
-      if (this.user.username == null || this.user.password == null || this.user.roles == "") {
+      if (
+        this.user.username == null ||
+        this.user.password == null ||
+        this.user.roles == ""
+      ) {
         this.submitted = false;
-         this.$snackbar.open({
-                    duration: 3000,
-                    message: "Please fill in all fields",
-                    type: 'is-danger',
-                    position: 'is-top',
-                    indefinite: true,
-                   
-                })
+        this.$snackbar.open({
+          duration: 3000,
+          message: "Please fill in all fields",
+          type: "is-danger",
+          position: "is-top",
+          indefinite: true
+        });
       } else {
         this.signup(this.user);
       }

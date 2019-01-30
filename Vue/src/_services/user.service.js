@@ -1,5 +1,5 @@
 import config from 'config';
-import {authHeader} from '../_helpers';
+import { authHeader } from '../_helpers';
 import qs from 'qs';
 
 //This js file is used to handle user services namely login/logout functions 
@@ -8,7 +8,11 @@ import qs from 'qs';
 export const userService = {
     login,
     logout,
-    getAll
+    getAll,
+    get,
+    createUser,
+    updateUser,
+    deleteUser
 };
 
 function login(loginUser) {
@@ -19,7 +23,7 @@ function login(loginUser) {
         headers: {
             "content-type": "application/x-www-form-urlencoded",
             'Access-Control-Allow-Origin': '*'
-          },
+        },
         body: qs.stringify(loginUser)
     };
 
@@ -55,7 +59,89 @@ function getAll() {
             this.errorStatus = error.response.data.message;
         }
         return Promise.reject(errorStatus)
-      })
+    })
+}
+
+function get(userid) {
+    const requestOptions = {
+        method: 'GET',
+        headers: authHeader()
+    };
+
+    return fetch(`${config.apiUrl}/api/Users/` + userid, requestOptions).then(handleResponse).catch(error => {
+        if (!error.response) {
+            // network error
+            this.errorStatus = 'Error: Network Error';
+        } else {
+            this.errorStatus = error.response.data.message;
+        }
+        return Promise.reject(errorStatus)
+    })
+}
+
+function createUser(user) {
+    console.log('datainqs', qs.stringify(user));
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            "content-type": "application/x-www-form-urlencoded",
+            'Access-Control-Allow-Origin': '*'
+        },
+        body: qs.stringify(user)
+    };
+
+    return fetch(`${config.apiUrl}/api/Users/signup`, requestOptions)
+        .then(handleResponse)
+        .catch(error => {
+            if (!error.response) {
+                // network error
+                this.errorStatus = 'Error: Network Error';
+            } else {
+                this.errorStatus = error.response.data.message;
+            }
+            return Promise.reject(errorStatus)
+        });
+}
+
+function updateUser(user, userid) {
+    console.log('datainqs', qs.stringify(user));
+    const requestOptions = {
+        method: 'PUT',
+        headers: {
+            "content-type": "application/x-www-form-urlencoded",
+            'Access-Control-Allow-Origin': '*'
+        },
+        body: qs.stringify(user)
+    };
+
+    return fetch(`${config.apiUrl}/api/Users/` + userid, requestOptions)
+        .then(handleResponse)
+        .catch(error => {
+            if (!error.response) {
+                // network error
+                this.errorStatus = 'Error: Network Error';
+            } else {
+                this.errorStatus = error.response.data.message;
+            }
+            return Promise.reject(errorStatus)
+        });
+}
+
+function deleteUser(userid) {
+    const requestOptions = {
+        method: 'DELETE',
+        headers: authHeader()
+    };
+
+    return fetch(`${config.apiUrl}/api/Users/` + userid, requestOptions).then(handleResponse).catch(error => {
+        if (!error.response) {
+            // network error
+            this.errorStatus = 'Error: Network Error';
+        } else {
+            this.errorStatus = error.response.data.message;
+        }
+        return Promise.reject(errorStatus)
+    })
 }
 
 function handleResponse(response) {
@@ -67,7 +153,7 @@ function handleResponse(response) {
                 logout();
                 location.reload(true);
             }
-            if(response.status === 404){
+            if (response.status === 404) {
                 const error = (data && data.message) || response.statusText || "Cannot connect to server";
                 return Promise.reject(error);
             }

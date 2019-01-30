@@ -7,7 +7,7 @@
     <div class="box boxStyle">
       <div class="formStyle">
         <label class="field-label is-medium">General Information</label>
-       <div class="field is-horizontal fieldStyle">
+        <div class="field is-horizontal fieldStyle">
           <div class="field-label is-normal">
             <label class="label">Account Name</label>
           </div>
@@ -26,7 +26,7 @@
             </div>
           </div>
         </div>
-       <div class="field is-horizontal fieldStyle2">
+        <div class="field is-horizontal fieldStyle2">
           <div class="field-label is-normal">
             <label class="label">Visibility</label>
           </div>
@@ -65,15 +65,15 @@
   margin-left: 0.5em;
 }
 .contentStyle {
-  margin-top: 5em; 
-  margin-bottom: 2em; 
+  margin-top: 5em;
+  margin-bottom: 2em;
   width: 50%;
 }
 .boxStyle {
   margin-bottom: 5em;
 }
 .formStyle {
-  width: 70%; 
+  width: 70%;
   margin-left: 2em;
 }
 .fieldStyle {
@@ -96,11 +96,9 @@
 
 <script>
 import qs from "qs";
-import axios from "axios";
+import api from "../_services/restful.service";
 import { router, authHeader, authHeaderUrlencoded } from "../_helpers";
 import moment from "moment";
-
-axios.defaults.headers["X-Requested-With"] = "XMLHttpRequest";
 
 export default {
   data() {
@@ -115,56 +113,40 @@ export default {
     this.getCustomer();
   },
   methods: {
-    getCustomer() {
-      axios
-        .get(
-          "http://localhost:5000/api/CustomerAccounts/UpdateGeneralInfo/" +
-            this.$route.params.customerAccountId,
-          {
-            headers: authHeader()
-          }
-        )
-        .then(response => {
-          // JSON responses are automatically parsed.
-          this.customer = response.data;
-        })
-        .catch(e => {
-          console.log(e);
-        });
+    async getCustomer() {
+      try {
+        this.customer = await api.get(
+          "/CustomerAccounts/UpdateGeneralInfo/" +
+            this.$route.params.customerAccountId
+        );
+      } finally {
+      }
     },
     async updateGeneralInfo() {
-      console.log("'" + JSON.stringify(this.customer) + "'");
+      //validation
       if (
         this.customer.accountName == null ||
         this.customer.accountName == ""
       ) {
         this.hasError = true;
       } else {
-         this.hasError = false;
-        axios
-          .put(
-            "http://localhost:5000/api/CustomerAccounts/UpdateGeneralInfo/" +
+        this.hasError = false;
+
+        try {
+          await api.update(
+            "/CustomerAccounts/UpdateGeneralInfo/" +
               this.$route.params.customerAccountId,
-
-            qs.stringify(this.customer),
-            {
-              headers: authHeaderUrlencoded()
-            }
-          )
-          .then(response => {
-            console.log(response);
-          })
-          .catch(error => {
-            console.log(error.response);
-          });
-
-        this.customer = {
-          sessionName: "",
-          comments: "",
-          visibility: true
-        };
-        // return to manage customer page
-        router.go(-1);
+            qs.stringify(this.customer)
+          );
+        } finally {
+          this.customer = {
+            sessionName: "",
+            comments: "",
+            visibility: true
+          };
+          // return to manage customer page
+          router.go(-1);
+        }
       }
     }
   }

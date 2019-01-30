@@ -4,6 +4,16 @@
       <b-icon pack="fas" icon="clipboard" type="is-danger" size="is-small"></b-icon>
       <h1 class="manageTitle">Manage Session Synopses</h1>
     </section>
+    <nav class="breadcrumb" aria-label="breadcrumbs">
+      <ul>
+        <li>
+          <a href="/">Home</a>
+        </li>
+        <li class="is-active">
+          <a href="/ManageSessionSynopses" aria-current="page">Manage Session Synopses</a>
+        </li>
+      </ul>
+    </nav>
     <section>
       <div class="level panel-heading panelStyle">
         <div class="level-left">
@@ -89,8 +99,8 @@
 </template>
 
 <script>
-import axios from "axios";
 import { router, authHeader, authHeaderUrlencoded } from "../_helpers";
+import api from "../_services/restful.service";
 
 export default {
   data() {
@@ -122,26 +132,20 @@ export default {
     this.getAll();
   },
   methods: {
-    getAll() {
-      axios
-        .get("http://localhost:5000/api/SessionSynopses/", {
-          headers: authHeader()
-        })
-        .then(response => {    
-          this.data = response.data;
-          let user = JSON.parse(localStorage.getItem('user'));
+    async getAll() {
+      try {
+        this.data = await api.getAll("/SessionSynopses/");
+      } finally {
+        let user = JSON.parse(localStorage.getItem("user"));
 
-          if (user != null) {
-            if (user.user.roles == "Admin") {
-              this.checkRole = true;
-            } else {
-              this.checkRole =  false;
-            }
+        if (user != null) {
+          if (user.user.roles == "Admin") {
+            this.checkRole = true;
+          } else {
+            this.checkRole = false;
           }
-        })
-        .catch(e => {
-          console.log(e);
-        });
+        }
+      }
     },
     editRow(sessionId) {
       router.push({ path: `/UpdateSessionSynopsis/${sessionId}` }); // -> /UpdateSessionSynopses/123
@@ -155,28 +159,19 @@ export default {
         confirmText: "Delete Session",
         type: "is-danger",
         hasIcon: true,
-        onConfirm: () => {
+        onConfirm: async () => {
           console.log(sessionId);
-          axios
-            .delete("http://localhost:5000/api/SessionSynopses/" + sessionId, {
-              headers: authHeader()
-            })
-            .then(response => {
-              // JSON responses are automatically parsed.
-              let index = this.data.findIndex(
-                row => row.sessionId === sessionId
-              );
-              this.data.splice(index, 1);
-            })
-            .catch(e => {
-              console.log(e);
+          try {
+            await api.delete("/SessionSynopses/" + sessionId);
+          } finally {
+            let index = this.data.findIndex(row => row.sessionId === sessionId);
+            this.data.splice(index, 1);
+
+            this.$toast.open({
+              duration: 1000,
+              message: "Session deleted!"
             });
-          this.$toast.open(
-            {
-                duration: 1000,
-                message: "Session deleted!"
-              }
-          );
+          }
         }
       });
     }
@@ -190,6 +185,6 @@ export default {
   margin-left: 0.5em;
 }
 .panelStyle {
-  margin-top: 2em;
+  margin: 0;
 }
 </style>

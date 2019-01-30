@@ -1,4 +1,4 @@
-<template>
+<template >
   <div class="panel container" style="margin-top:5em; width:50%">
     <div class="panel-heading level-left">
       <b-icon pack="fas" icon="plus" type="is-danger"></b-icon>
@@ -20,9 +20,14 @@
                 type="text"
                 placeholder="e.g. Practice"
               >
-               <label :class="{errorSessionName : hasError }" v-if="hasError" >Invalid input. Session name required</label>
-               <label :class="{errorSessionName : hasRegError }" v-if="hasRegError" >Invalid input, special characters or spaces only not allowed.</label>
-            
+              <label
+                :class="{errorSessionName : hasError }"
+                v-if="hasError"
+              >Invalid input. Session name required</label>
+              <label
+                :class="{errorSessionName : hasRegError }"
+                v-if="hasRegError"
+              >Invalid input. Numbers, special characters or spaces only not allowed.</label>
             </div>
           </div>
         </div>
@@ -60,10 +65,8 @@
 
 <script>
 import qs from "qs";
-import axios from "axios";
 import { router, authHeader, authHeaderUrlencoded } from "../_helpers";
-
-axios.defaults.headers["X-Requested-With"] = "XMLHttpRequest";
+import api from "../_services/restful.service";
 
 export default {
   data() {
@@ -80,49 +83,38 @@ export default {
   methods: {
     async createSession() {
       this.model.sessionName = this.model.sessionName.trim();
-      const nameReg = new RegExp("[^a-zA-Z0-9 ][^']*$")
-      console.log("'" + JSON.stringify(this.model) + "'");
+      const nameReg = new RegExp("[^a-zA-Z ][^']*$");
+
       if (this.model.sessionName === "") {
         this.hasError = true;
         this.hasRegError = false;
-      }
-      else if ( nameReg.test(this.model.sessionName) == true) {
+      } else if (nameReg.test(this.model.sessionName) == true) {
         this.hasRegError = true;
         this.hasError = false;
-
       } else {
         this.hasError = false;
         this.hasRegError = false;
-        axios
-          .post(
-            "http://localhost:5000/api/SessionSynopses/",
 
-           qs.stringify(this.model),
-            {
-              headers: authHeaderUrlencoded()
-            }
-          )
-          .then(response => {
-            console.log(response);
-            
-        this.model = {
-          sessionName: "",
-          visibility: true
-        };
-        // go back to manage session synopses
-        router.push("/ManageSessionSynopses");
-          })
-          .catch(error => {
-            console.log(error);
-                     this.$snackbar.open({
-                    duration: 3000,
-                    message: "Error: Session cannot be created",
-                    type: 'is-warning',
-                    position: 'is-top',  
-                });
-            
-          });
-
+        try {
+          await api
+            .create("/SessionSynopses/", qs.stringify(this.model))
+            .catch(error => {
+              console.log(error);
+              this.$snackbar.open({
+                duration: 3000,
+                message: "Error: Session cannot be created",
+                type: "is-warning",
+                position: "is-top"
+              });
+            });
+        } finally {
+          this.model = {
+            sessionName: "",
+            visibility: true
+          };
+          // go back to manage session synopses
+          router.push("/ManageSessionSynopses");
+        }
       }
     }
   }

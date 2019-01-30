@@ -49,6 +49,7 @@
                 v-model="accountDetail.startTime"
                 placeholder="Click to select..."
                 hour-format="12"
+                :increment-minutes="timeinterval"
                 icon="clock"
               >
                 <div class="buttons">
@@ -83,6 +84,7 @@
                 v-model="accountDetail.endTime"
                 placeholder="Click to select..."
                 :min-time="accountDetail.startTime"
+                :increment-minutes="timeinterval"
                 hour-format="12"
                 icon="clock"
               >
@@ -219,17 +221,16 @@
 
 <script>
 import qs from "qs";
-import axios from "axios";
+import api from "../_services/restful.service";
 import { router, authHeader, authHeaderUrlencoded } from "../_helpers";
 import moment from "moment";
 import ModalTable from "./ModalTable";
 import ClashTable from "./ClashTable";
 
-axios.defaults.headers["X-Requested-With"] = "XMLHttpRequest";
-
-const overlapDetails = [];
+var overlapDetails = [];
 var startingTime = null;
 var endingTime = null;
+var dayOfWk = null;
 
 export default {
   components: {
@@ -241,6 +242,7 @@ export default {
     return {
       ClashTable,
       ModalTable,
+      timeinterval: 15,
       accountDetail: {
         visibility: true,
         startTimeinMin: 0,
@@ -252,8 +254,6 @@ export default {
       hasendTimeError: false,
       hasStartDateError: false,
       accountDetailList: [],
-      overlapDetails,
-      isOverlap: false,
       minDate: new Date(today.getFullYear(), today.getMonth(), today.getDate())
     };
   },
@@ -277,71 +277,65 @@ export default {
         hasModalCard: false
       });
     },
-    getAll() {
-      axios
-        .get(
-          "http://localhost:5000/api/AccountDetails/" +
-            this.$route.params.customerAccountId,
-          {
-            headers: authHeader()
-          }
-        )
-        .then(response => {
-          localStorage.setItem(
-            "customerID",
-            JSON.stringify(this.$route.params.customerAccountId)
-          );
+    async getAll() {
+      try {
+        this.accountDetailList = await api.getAll(
+          "/AccountDetails/" + this.$route.params.customerAccountId
+        );
+      } finally {
+        localStorage.setItem(
+          "customerID",
+          JSON.stringify(this.$route.params.customerAccountId)
+        );
 
-          // JSON responses are automatically parsed.
-          this.accountDetailList = response.data;
-          //return data;
-          console.log(this.accountDetailList);
-          for (var index in this.accountDetailList) {
-            var row = this.accountDetailList[index];
+        console.log(this.accountDetailList);
 
-            //convert start time min to HH:MM AM/PM
-            var startMin = row.startTimeMin;
-            row.startTime = moment()
-              .startOf("day")
-              .add(startMin, "minutes")
-              .format("hh:mm A");
-            //console.log(row.startTime);
+        //loop through list to do conversion
+        for (var index in this.accountDetailList) {
+          var row = this.accountDetailList[index];
 
-            //convert end time min to HH:MM AM/PM
-            var endMin = row.endTimeMin;
-            row.endTime = moment()
-              .startOf("day")
-              .add(endMin, "minutes")
-              .format("hh:mm A");
-            //console.log(row.endTime);
+          //convert start time min to HH:MM AM/PM
+          var startMin = row.startTimeMin;
+          row.startTime = moment()
+            .startOf("day")
+            .add(startMin, "minutes")
+            .format("hh:mm A");
+          //console.log(row.startTime);
 
-            //convert day number to day name
-            switch (row.dayOfWeek) {
-              case 1:
-                row.dayName = "Sunday";
-                break;
-              case 2:
-                row.dayName = "Monday";
-                break;
-              case 3:
-                row.dayName = "Tuesday";
-                break;
-              case 4:
-                row.dayName = "Wednesday";
-                break;
-              case 5:
-                row.dayName = "Thursday";
-                break;
-              case 6:
-                row.dayName = "Friday";
-                break;
-              case 7:
-                row.dayName = "Saturday";
-                break;
-              default:
-                row.dayName = "Unknown";
-                break;
-            }
+          //convert end time min to HH:MM AM/PM
+          var endMin = row.endTimeMin;
+          row.endTime = moment()
+            .startOf("day")
+            .add(endMin, "minutes")
+            .format("hh:mm A");
+          //console.log(row.endTime);
+
+          //convert day number to day name
+          switch (row.dayOfWeek) {
+            case 1:
+              row.dayName = "Sunday";
+              break;
+            case 2:
+              row.dayName = "Monday";
+              break;
+            case 3:
+              row.dayName = "Tuesday";
+              break;
+            case 4:
+              row.dayName = "Wednesday";
+              break;
+            case 5:
+              row.dayName = "Thursday";
+              break;
+            case 6:
+              row.dayName = "Friday";
+              break;
+            case 7:
+              row.dayName = "Saturday";
+              break;
+            default:
+              row.dayName = "Unknown";
+              break;
           }
 
           // check for overlapping time
@@ -356,29 +350,33 @@ export default {
               .add(endingTime, "minutes")
               .format("hh:mm A");
 
-            console.log(timeA);
-
             if (
-              timeA.localeCompare(row.endTime) <= 0 &&
-              row.startTime.localeCompare(timeB) <= 0 &&
-              row.dayOfWeek == this.accountDetail.dayOfWeek
+              startingTime == row.startTimeMin &&
+              endingTime == row.endTimeMin &&
+              row.dayOfWeek == dayOfWk
             ) {
-              this.overlapDetails.push(row);
-              this.isOverlap = true;
-              localStorage.setItem(
-                "clashList",
-                JSON.stringify(this.overlapDetails)
-              );
+              this.$dialog.alert({
+                title: "Error creating detail",
+                type: "is-danger",
+                message:
+                  "There is an exising account detail with the same day, starting time and ending time.",
+                confirmText: "Ok"
+              });
+              return "same";
+            } else if (
+              timeA.localeCompare(row.endTime) < 0 &&
+              row.startTime.localeCompare(timeB) < 0 &&
+              row.dayOfWeek == dayOfWk
+            ) {
+              overlapDetails.push(row);
+              localStorage.setItem("clashList", JSON.stringify(overlapDetails));
+              this.warningClash(overlapDetails);
+              return "clashed";
             }
-
-            if (this.isOverlap == true) {
-              this.warningClash(this.overlapDetails);
-            }
-          }
-        })
-        .catch(e => {
-          console.log(e);
-        });
+          } //end if
+        } //end loop
+        return "noclash";
+      }
     },
     warningClash(overlapList) {
       this.$modal.open({
@@ -388,7 +386,6 @@ export default {
       });
     },
     async createDetail() {
-      console.log("'" + JSON.stringify(this.accountDetail) + "'");
       var dateA = moment(this.accountDetail.startDate, "DD-MM-YYYY"); // replace format by your one
       var dateB = moment(this.accountDetail.endDate, "DD-MM-YYYY");
       const numOnly = new RegExp("^[0-9]*$");
@@ -439,6 +436,8 @@ export default {
         this.hasStartDateError = false;
 
         //convert time to time in minutes
+        dayOfWk = this.accountDetail.dayOfWeek;
+
         var startTimeHour = parseInt(
           new Date(this.accountDetail.startTime).getHours().toString()
         );
@@ -460,39 +459,31 @@ export default {
         this.accountDetail.endTimeinMin = endingTime;
         console.log(this.accountDetail.endTimeinMin);
 
-        this.getAll();
-
-        //send request to web api to post data
-        axios
-          .post(
-            "http://localhost:5000/api/AccountDetails/CreateAccountDetail/" +
+        var isClashed = await this.getAll();
+        console.log(isClashed);
+        if (isClashed == "noclash" || isClashed == "clashed") {
+          //send request to web api to post data
+          console.log("start post method");
+          api.create(
+            "/AccountDetails/CreateAccountDetail/" +
               this.$route.params.customerAccountId,
-
-            qs.stringify(this.accountDetail),
-            {
-              headers: authHeaderUrlencoded()
-            }
-          )
-          .then(response => {
-            console.log(response);
-          })
-          .catch(error => {
-            console.log(error.response);
-          });
-
-        this.accountDetail = {
-          dayOfWeek: null,
-          startTime: null,
-          endTime: null,
-          startTimeinMin: null,
-          endTimeinMin: null,
-          startDate: null,
-          endDate: null,
-          visibility: false
-        };
-        // redirect to previous page
-        if (this.isOverlap != true) {
-          router.go(-1);
+            qs.stringify(this.accountDetail)
+          );
+          this.accountDetail = {
+            dayOfWeek: null,
+            startTime: null,
+            endTime: null,
+            startTimeinMin: null,
+            endTimeinMin: null,
+            startDate: null,
+            endDate: null,
+            visibility: false
+          };
+          overlapDetails = [];
+          // redirect to previous page
+          if (isClashed == "noclash") {
+            router.go(-1);
+          }
         }
       }
     }

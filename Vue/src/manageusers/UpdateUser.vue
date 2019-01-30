@@ -84,11 +84,9 @@
 
 <script>
 import qs from "qs";
-import axios from "axios";
 import { router, authHeader, authHeaderUrlencoded } from "../_helpers";
+import { userService } from "../_services";
 import moment from "moment";
-
-axios.defaults.headers["X-Requested-With"] = "XMLHttpRequest";
 
 export default {
   data() {
@@ -108,30 +106,20 @@ export default {
   },
   methods: {
     getUser() {
-      axios
-        .get("http://localhost:5000/api/Users/" + this.$route.params.userid, {
-          headers: authHeader()
-        })
+      userService
+        .get(this.$route.params.userid)
         .then(response => {
           // JSON responses are automatically parsed.
-          this.user = response.data;
+          this.user = response;
         })
         .catch(e => {
           console.log(e);
         });
     },
     update(collectedUser) {
-      console.log("data", qs.stringify(collectedUser));
-      axios
-        .put(
-          "http://localhost:5000/api/Users/" + this.$route.params.userid,
-
-          qs.stringify(collectedUser),
-
-          {
-            headers: authHeaderUrlencoded()
-          }
-        )
+      console.log("data", qs.stringify(this.user));
+      userService
+        .updateUser(collectedUser, this.$route.params.userid)
         .then(response => {
           console.log(response);
         })
@@ -139,7 +127,7 @@ export default {
           console.log(error);
           this.$snackbar.open({
             duration: 3000,
-            message: error,
+            message: "Error: user could not be updated",
             type: "is-danger",
             position: "is-top",
             indefinite: true

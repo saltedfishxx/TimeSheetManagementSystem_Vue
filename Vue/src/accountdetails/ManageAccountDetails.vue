@@ -8,6 +8,19 @@
       </button>
       <h1 class="sectionStyle">Manage Account Details</h1>
     </section>
+    <nav class="breadcrumb" aria-label="breadcrumbs">
+      <ul>
+        <li>
+          <a href="/">Home</a>
+        </li>
+        <li>
+          <a href="/ManageCustomerAccounts" aria-current="page">Manage Customer Accounts</a>
+        </li>
+        <li class="is-active">
+          <a href="/" aria-current="page">Manage Account Details</a>
+        </li>
+      </ul>
+    </nav>
     <section>
       <div class="level panel-heading panelStyle">
         <div class="level-left">
@@ -76,10 +89,11 @@
           <b-table-column custom-key="actions">
             <button class="button is-primary" @click="updateRate(props.row.accountDetailId)">
               <b-icon pack="fas" icon="edit"></b-icon>
-              <span>Update Rate</span>
+              <span>Update Detail</span>
             </button>
             <button
               class="button is-danger"
+              :disabled="isOne(props.row.accountDetailId, props.row.startDate, props.row.endDate)"
               @click="deleteRow(props.row.accountDetailId, $route.params.customerAccountId, props.row)"
             >
               <b-icon pack="fas" icon="trash-alt"></b-icon>
@@ -108,12 +122,12 @@
   margin-left: 1em;
 }
 .panelStyle {
-  margin-top: 2em;
+  margin: 0;
 }
 </style>
 
 <script>
-import axios from "axios";
+import api from "../_services/restful.service";
 import { router, authHeader } from "../_helpers";
 import moment from "moment";
 
@@ -149,79 +163,85 @@ export default {
     var custAccId = this.$route.params.customerAccountId;
   },
   methods: {
-    getAll() {
-      axios
-        .get(
-          "http://localhost:5000/api/AccountDetails/" +
-            this.$route.params.customerAccountId,
-          {
-            headers: authHeader()
-          }
-        )
-        .then(response => {
-          // JSON responses are automatically parsed.
-          this.data = response.data;
-          //return data;
-          console.log(this.data);
-          for (var index in this.data) {
-            var row = this.data[index];
+    isOne(id, startDate, endDate) {
+      if (this.data.length == 1) {
+        return true;
+      } else {
+        var starting = moment(startDate, "DD-MM-YYYY"); // replace format by your one
+        var ending = moment(endDate, "DD-MM-YYYY");
+        var today = moment(new Date());
+        if (today.diff(starting) >= 0 || today.diff(ending) >= 0) {
+          console.log("is true");
+          return true;
+        } else {
+          console.log("is false");
+          return false;
+        }
+      }
+    },
+    async getAll() {
+      try {
+        this.data = await api.getAll(
+          "/AccountDetails/" + this.$route.params.customerAccountId
+        );
+      } finally {
+        //loop through list to do conversion
+        for (var index in this.data) {
+          var row = this.data[index];
 
-            //convert start time min to HH:MM AM/PM
-            var startMin = row.startTimeMin;
-            row.startTime = moment()
-              .startOf("day")
-              .add(startMin, "minutes")
-              .format("hh:mm A");
-            //console.log(row.startTime);
+          //convert start time min to HH:MM AM/PM
+          var startMin = row.startTimeMin;
+          row.startTime = moment()
+            .startOf("day")
+            .add(startMin, "minutes")
+            .format("hh:mm A");
+          //console.log(row.startTime);
 
-            //convert end time min to HH:MM AM/PM
-            var endMin = row.endTimeMin;
-            row.endTime = moment()
-              .startOf("day")
-              .add(endMin, "minutes")
-              .format("hh:mm A");
-            //console.log(row.endTime);
+          //convert end time min to HH:MM AM/PM
+          var endMin = row.endTimeMin;
+          row.endTime = moment()
+            .startOf("day")
+            .add(endMin, "minutes")
+            .format("hh:mm A");
+          //console.log(row.endTime);
 
-            //convert day number to day name
-            switch (row.dayOfWeek) {
-              case 1:
-                row.dayName = "Sunday";
-                break;
-              case 2:
-                row.dayName = "Monday";
-                break;
-              case 3:
-                row.dayName = "Tuesday";
-                break;
-              case 4:
-                row.dayName = "Wednesday";
-                break;
-              case 5:
-                row.dayName = "Thursday";
-                break;
-              case 6:
-                row.dayName = "Friday";
-                break;
-              case 7:
-                row.dayName = "Saturday";
-                break;
-              default:
-                row.dayName = "Unknown";
-                break;
-            }
+          //convert day number to day name
+          switch (row.dayOfWeek) {
+            case 1:
+              row.dayName = "Sunday";
+              break;
+            case 2:
+              row.dayName = "Monday";
+              break;
+            case 3:
+              row.dayName = "Tuesday";
+              break;
+            case 4:
+              row.dayName = "Wednesday";
+              break;
+            case 5:
+              row.dayName = "Thursday";
+              break;
+            case 6:
+              row.dayName = "Friday";
+              break;
+            case 7:
+              row.dayName = "Saturday";
+              break;
+            default:
+              row.dayName = "Unknown";
+              break;
           }
-          let user = JSON.parse(localStorage.getItem("user"));
-          if (user != null) {
-            if (user.user.roles == "Admin") {
-              this.checkRole = true;
-            } else {
-              this.checkRole = false;
-            }
+        }
+        let user = JSON.parse(localStorage.getItem("user"));
+        if (user != null) {
+          if (user.user.roles == "Admin") {
+            this.checkRole = true;
+          } else {
+            this.checkRole = false;
           }
-        })
-        .catch(e => {
-          console.log(e);
-        });
+        }
+      }
     },
     updateRate(rateId) {
       router.push({ path: `/UpdateAccountDetail/${rateId}` });
@@ -232,7 +252,7 @@ export default {
     back() {
       router.push({ path: `/ManageCustomerAccounts` });
     },
-    deleteRow(accountDetailId, custId, row) {
+    async deleteRow(accountDetailId, custId, row) {
       console.log(accountDetailId);
       this.$dialog.confirm({
         title: "Deleting Account Detail Record",
@@ -241,35 +261,26 @@ export default {
         confirmText: "Delete Account Detail",
         type: "is-danger",
         hasIcon: true,
-        onConfirm: () => {
+        onConfirm: async () => {
           console.log(accountDetailId);
-          axios
-            .delete(
-              "http://localhost:5000/api/AccountDetails/" + accountDetailId,
-              {
-                headers: authHeader()
-              }
-            )
-            .then(response => {
-              // JSON responses are automatically parsed.
-              this.$toast.open({
-                duration: 1000,
-                message: "Account Detail deleted!"
-              });
-              let index = this.data.findIndex(
-                row => row.accountDetailId === accountDetailId
-              );
 
-              this.data.splice(index, 1);
-              this.$forceUpdate();
-              console.log("data", this.data);
-            })
-            .catch(e => {
-              console.log(e);
+          try {
+            await api.delete("/AccountDetails/" + accountDetailId);
+          } finally {
+            this.$toast.open({
+              duration: 1000,
+              message: "Account Detail deleted!"
             });
+            let index = this.data.findIndex(
+              row => row.accountDetailId === accountDetailId
+            );
+
+            this.data.splice(index, 1);
+            this.$forceUpdate();
+            console.log("data", this.data);
+          }
         }
       });
-      //}
     }
   }
 };

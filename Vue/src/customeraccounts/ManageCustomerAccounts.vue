@@ -4,6 +4,16 @@
       <b-icon pack="fas" icon="users" type="is-danger" size="is-small"></b-icon>
       <h1 class="manageTitle">Manage Customer Accounts</h1>
     </section>
+    <nav class="breadcrumb" aria-label="breadcrumbs">
+      <ul>
+        <li>
+          <a href="/">Home</a>
+        </li>
+        <li class="is-active">
+          <a href="/ManageCustomerAccounts" aria-current="page">Manage Customer Accounts</a>
+        </li>
+      </ul>
+    </nav>
     <section>
       <div class="level panel-heading panelStyle">
         <div class="level-left">
@@ -38,6 +48,9 @@
         :current-page.sync="currentPage"
         :default-sort-direction="defaultSortDirection"
         default-sort="accountName"
+        detailed
+        detail-key="accountName"
+        show-detail-icon="true"
       >
         <template slot="empty">
           <section class="section">
@@ -50,27 +63,23 @@
           </section>
         </template>
         <template slot-scope="props">
-          <b-table-column
-            field="accountName"
-            label="Customer"
-            sortable
-          >{{ props.row.accountName }}</b-table-column>
-
-          <b-table-column
-            field="comments"
-            label="Comments"
-            sortable
-            style="width:17%"
-          >{{ props.row.comments }}</b-table-column>
+          <b-table-column field="accountName" label="Customer" sortable>{{ props.row.accountName }}</b-table-column>
 
           <b-table-column
             field="numAccRates"
             label="No. Rates"
             sortable
-            style="width:7%"
+            style="width:9.5%"
           >{{ props.row.numAccRates }}</b-table-column>
 
-          <b-table-column field="updatedBy" label="Updated By" sortable>
+          <b-table-column
+            field="numAccDetails"
+            label="No. Details"
+            sortable
+            style="width:10%"
+          >{{ props.row.numAccDetails }}</b-table-column>
+
+          <b-table-column field="updatedBy" label="Updated By" style="width:11%" sortable>
             <span>{{ props.row.updatedBy }}</span>
           </b-table-column>
           <b-table-column field="updatedAt" label="Updated At" sortable style="width:11%">
@@ -90,19 +99,46 @@
               <b-icon pack="fas" icon="edit"></b-icon>
               <span>Update Cust Info</span>
             </button>
-            <button class="button is-info buttonStyle" @click="manageAccountRates(props.row.customerAccountId)">
+            <button
+              class="button is-info buttonStyle"
+              @click="manageAccountRates(props.row.customerAccountId)"
+            >
               <b-icon pack="fas" icon="dollar-sign"></b-icon>
               <span>Manage Rates/Hour</span>
             </button>
-            <button class="button is-link buttonStyle" @click="manageAccountDetail(props.row.customerAccountId)">
+            <button
+              class="button is-link buttonStyle"
+              @click="manageAccountDetail(props.row.customerAccountId)"
+            >
               <b-icon pack="fas" icon="clipboard"></b-icon>
               <span>Manage Account Details</span>
             </button>
-            <button class="button is-danger buttonStyle" @click="deleteRow(props.row.customerAccountId)">
+            <button
+              class="button is-danger buttonStyle"
+              @click="deleteRow(props.row.customerAccountId)"
+            >
               <b-icon pack="fas" icon="trash-alt"></b-icon>
               <span>Delete</span>
             </button>
           </b-table-column>
+        </template>
+        <template slot="detail" slot-scope="props">
+          <article class="media">
+            <figure class="media-left">
+              <p class="image is-64x64">
+                <b-icon pack="fas" icon="school" size="is-large" type="is-success"></b-icon>
+              </p>
+            </figure>
+            <div class="media-content">
+              <div class="content">
+                <p>
+                  <strong>Comments for {{ props.row.accountName}}</strong>
+                  <br>
+                  {{ props.row.comments}}
+                </p>
+              </div>
+            </div>
+          </article>
         </template>
       </b-table>
       <link
@@ -115,7 +151,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import api from "../_services/restful.service";
 import { router, authHeader } from "../_helpers";
 
 export default {
@@ -134,11 +170,11 @@ export default {
       perPage: 5
     };
   },
-    watch:{
-    $route (to, from){
-        this.getAll();
+  watch: {
+    $route(to, from) {
+      this.getAll();
     }
- },
+  },
   async created() {
     const loadingComponent = this.$loading.open({
       container: this.isFullPage ? null : this.$refs.element.$el
@@ -147,27 +183,20 @@ export default {
     this.getAll();
   },
   methods: {
-    getAll() {
-      axios
-        .get("http://localhost:5000/api/CustomerAccounts/", {
-          headers: authHeader()
-        })
-        .then(response => {
-          // JSON responses are automatically parsed.
-          this.data = response.data;
-            let user = JSON.parse(localStorage.getItem('user'));
+    async getAll() {
+      try {
+        this.data = await api.getAll("/CustomerAccounts/");
+      } finally {
+        let user = JSON.parse(localStorage.getItem("user"));
 
-          if (user != null) {
-            if (user.user.roles == "Admin") {
-              this.checkRole = true;
-            } else {
-              this.checkRole =  false;
-            }
+        if (user != null) {
+          if (user.user.roles == "Admin") {
+            this.checkRole = true;
+          } else {
+            this.checkRole = false;
           }
-        })
-        .catch(e => {
-          console.log(e);
-        });
+        }
+      }
     },
     updateGeneralInfo(customerAccountId) {
       router.push({ path: `/UpdateGeneralInfo/${customerAccountId}` });
@@ -175,10 +204,10 @@ export default {
     manageAccountRates(customerAccountId) {
       router.push({ path: `/ManageAccountRates/${customerAccountId}` });
     },
-    manageAccountDetail(customerAccountId){
+    manageAccountDetail(customerAccountId) {
       router.push({ path: `/ManageAccountDetails/${customerAccountId}` });
     },
-    deleteRow(accountId) {
+    async deleteRow(accountId) {
       console.log(accountId);
       this.$dialog.confirm({
         title: "Deleting Customer Record",
@@ -187,26 +216,21 @@ export default {
         confirmText: "Delete Account",
         type: "is-danger",
         hasIcon: true,
-        onConfirm: () => {
+        onConfirm: async () => {
           console.log(accountId);
-          axios
-            .delete("http://localhost:5000/api/CustomerAccounts/" + accountId, {
-              headers: authHeader()
-            })
-            .then(response => {
-              // JSON responses are automatically parsed.
-              let index = this.data.findIndex(
-                row => row.customerAccountId === accountId
-              );
-              this.data.splice(index, 1);
-            })
-            .catch(e => {
-              console.log(e.response);
-            });
-          this.$toast.open({
+          try {
+            await api.delete("/CustomerAccounts/" + accountId);
+          } finally {
+            let index = this.data.findIndex(
+              row => row.customerAccountId === accountId
+            );
+            this.data.splice(index, 1);
+
+            this.$toast.open({
               duration: 1000,
               message: "Customer Account deleted!"
-          });
+            });
+          }
         }
       });
     }
@@ -225,10 +249,10 @@ export default {
   margin-left: 1em;
 }
 .panelStyle {
-  margin-top: 2em;
+  margin: 0;
 }
 .buttonStyle {
   margin-top: 0.5em;
-  width: 250px;
+  width: 240px;
 }
 </style>

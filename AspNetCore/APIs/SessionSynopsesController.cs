@@ -52,15 +52,15 @@ namespace AspNetCore.APIs
 
             int userId = 0;
             if (identity != null)
-			{
-                
+            {
+
                 userId = Int32.Parse(identity.FindFirst("userid").Value);
                 var user = _userService.GetById(userId);
                 //get user role 
                 string roles = user.Roles;
 
                 List<object> sessionList = new List<object>();
-   
+
 
                 var sessions = Database.SessionSynopses
                     .Include(input => input.CreatedBy)
@@ -105,8 +105,8 @@ namespace AspNetCore.APIs
         public IActionResult Get(int id)
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
-			if (identity != null)
-			{
+            if (identity != null)
+            {
                 List<object> sessionList = new List<object>();
                 var selectedSession = Database.SessionSynopses
                     .Where(eachSession => eachSession.SessionSynopsisId == id)
@@ -135,7 +135,7 @@ namespace AspNetCore.APIs
         public IActionResult Post([FromForm] IFormCollection webFormData)
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
-			int userId = 0;
+            int userId = 0;
             if (identity != null)
             {
                 IEnumerable<Claim> claims = identity.Claims;
@@ -144,7 +144,7 @@ namespace AspNetCore.APIs
 
                 SessionSynopsis newSession = new SessionSynopsis();
 
-                if(webFormData["sessionName"].ToString() == null || Convert.ToBoolean(webFormData["visibility"]) == null)
+                if (webFormData["sessionName"].ToString() == null || Convert.ToBoolean(webFormData["visibility"]) == null)
                 {
                     string customMessage = "Unable to save record. Please try again";
 
@@ -186,7 +186,7 @@ namespace AspNetCore.APIs
             }
             else
             {
-                 return BadRequest(new { message = "Unable to create record" });
+                return BadRequest(new { message = "Unable to create record" });
             }
         }
 
@@ -195,13 +195,13 @@ namespace AspNetCore.APIs
         public IActionResult Put(int id, [FromForm] IFormCollection webFormData)
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
-			int userId = 0;
-			if (identity != null)
-			{
-					IEnumerable<Claim> claims = identity.Claims;
+            int userId = 0;
+            if (identity != null)
+            {
+                IEnumerable<Claim> claims = identity.Claims;
 
-					userId = Int32.Parse(identity.FindFirst("userid").Value);
-                    
+                userId = Int32.Parse(identity.FindFirst("userid").Value);
+
                 var oneSession = Database.SessionSynopses
                     .Where(item => item.SessionSynopsisId == id).Single();
 
@@ -240,8 +240,9 @@ namespace AspNetCore.APIs
                     message = "Create Web API is called. The extracted Id is " + userId.ToString() +
                             ". Updated a record " + oneSession.SessionSynopsisName
                 });
-            }else
-            return BadRequest(new { message = "Unable to create record" });
+            }
+            else
+                return BadRequest(new { message = "Unable to create record" });
 
 
 
@@ -252,16 +253,16 @@ namespace AspNetCore.APIs
         public IActionResult Delete(int id)
         {
 
-                       var identity = HttpContext.User.Identity as ClaimsIdentity;
-			int userId = 0;
-			if (identity != null)
-			{
-				IEnumerable<Claim> claims = identity.Claims;
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            int userId = 0;
+            if (identity != null)
+            {
+                IEnumerable<Claim> claims = identity.Claims;
 
-				userId = Int32.Parse(identity.FindFirst("userid").Value);
-               
-                 var delSession = Database.SessionSynopses
-                .Single(eachSession => eachSession.SessionSynopsisId == id);
+                userId = Int32.Parse(identity.FindFirst("userid").Value);
+
+                var delSession = Database.SessionSynopses
+               .Single(eachSession => eachSession.SessionSynopsisId == id);
 
                 try
                 {
@@ -271,10 +272,10 @@ namespace AspNetCore.APIs
                 }
                 catch (Exception ex)
                 {
-                   
-                            return BadRequest("Unable to delete record");
-                        
-                    
+
+                    return BadRequest("Unable to delete record");
+
+
                 }//end try catch
 
                 return Ok(new
@@ -282,8 +283,9 @@ namespace AspNetCore.APIs
                     message = "Delete Web API is called. The extracted Id is " + userId.ToString() +
                                             ". Deleted a record " + delSession.SessionSynopsisName
                 });
-            }else
-            return BadRequest(new { message = "Unable to retrieve the record" });
+            }
+            else
+                return BadRequest(new { message = "Unable to retrieve the record" });
         }//end of Delete() Web API method
 
 

@@ -18,9 +18,15 @@
                 type="text"
                 placeholder="e.g. Practice"
               >
-               <label :class="{errorSessionName : hasError }" v-if="hasError" >Invalid input. Session name required</label>
-               <label :class="{errorSessionName : hasRegError }" v-if="hasRegError" >Invalid input, special characters or spaces only not allowed.</label>
-               <p v-else></p>
+              <label
+                :class="{errorSessionName : hasError }"
+                v-if="hasError"
+              >Invalid input. Session name required</label>
+              <label
+                :class="{errorSessionName : hasRegError }"
+                v-if="hasRegError"
+              >Invalid input, special characters or spaces only not allowed.</label>
+              <p v-else></p>
             </div>
           </div>
         </div>
@@ -58,6 +64,7 @@
 import qs from "qs";
 import axios from "axios";
 import { router, authHeader, authHeaderUrlencoded } from "../_helpers";
+import api from "../_services/restful.service";
 
 axios.defaults.headers["X-Requested-With"] = "XMLHttpRequest";
 
@@ -78,60 +85,37 @@ export default {
   },
   methods: {
     async getSession() {
-      axios
-        .get(
-          "http://localhost:5000/api/SessionSynopses/" +
-            this.$route.params.sessionId,
-          {
-            headers: authHeader()
-          }
-        )
-        .then(response => {
-          // JSON responses are automatically parsed.
-          this.model = response.data;
-        })
-        .catch(e => {
-          console.log(e);
-        });
+      this.model = await api.get(
+        "/SessionSynopses/" + this.$route.params.sessionId
+      );
     },
     async updateSession() {
       this.model.sessionName = this.model.sessionName.trim();
-      const nameReg = new RegExp("[^a-zA-Z0-9 ][^']*$")
-      console.log("'" + JSON.stringify(this.model) + "'");
+      const nameReg = new RegExp("[^a-zA-Z0-9 ][^']*$");
+
       if (this.model.sessionName === "") {
         this.hasError = true;
         this.hasRegError = false;
-      }
-      else if ( nameReg.test(this.model.sessionName) == true) {
+      } else if (nameReg.test(this.model.sessionName) == true) {
         this.hasRegError = true;
         this.hasError = false;
-
       } else {
         this.hasError = false;
         this.hasRegError = false;
-        axios
-          .put(
-            "http://localhost:5000/api/SessionSynopses/" +
-              this.$route.params.sessionId,
 
-            qs.stringify(this.model),
-            {
-              headers: authHeaderUrlencoded()
-            }
-          )
-          .then(response => {
-            console.log(response);
-          })
-          .catch(error => {
-            console.log(error.response);
-          });
-
-        this.model = {
-          sessionName: "",
-          visibility: true
-        };
-        // return to previous page
-        router.go(-1);
+        try {
+          await api.update(
+            "/SessionSynopses/" + this.$route.params.sessionId,
+            qs.stringify(this.model)
+          );
+        } finally {
+          this.model = {
+            sessionName: "",
+            visibility: true
+          };
+          // return to previous page
+          router.go(-1);
+        }
       }
     }
   }

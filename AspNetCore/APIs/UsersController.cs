@@ -26,7 +26,7 @@ namespace AspNetCore.Controllers
         private IMapper _mapper;
         private readonly AppSettings _appSettings;
 
-        public UsersController ( 
+        public UsersController(
             IUserService userService,
             IMapper mapper,
             IOptions<AppSettings> appSettings)
@@ -79,7 +79,6 @@ namespace AspNetCore.Controllers
         }
 
         [AllowAnonymous]
-        [EnableCors("VueCorsPolicy")]
         [HttpPost("signup")]
         public IActionResult SignUp([FromForm]IFormCollection inFormData)
         {
@@ -158,7 +157,7 @@ namespace AspNetCore.Controllers
                 FirstName = inFormData["firstname"],
                 LastName = inFormData["lastname"],
                 Roles = inFormData["roles"]
-      
+
             };
 
             try

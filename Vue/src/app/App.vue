@@ -12,7 +12,8 @@
           role="button"
           class="navbar-burger navbar-end"
           aria-label="menu"
-           @click="showNav = !showNav" :class="{ 'is-active': showNav }"
+          @click="showNav = !showNav"
+          :class="{ 'is-active': showNav }"
           data-target="navbarBasicExample"
         >
           <span aria-hidden="true"></span>
@@ -47,6 +48,9 @@
 
         <div class="navbar-end">
           <div class="navbar-item">
+            <b-icon pack="fas" icon="bell" type="is-white"></b-icon>
+          </div>
+          <div class="navbar-item">
             <p>{{ currentUser() }}</p>
           </div>
           <div class="navbar-item buttons">
@@ -63,9 +67,9 @@
     </nav>
     <div class="container">
       <transition name="fade" mode="out-in">
-        <router-view :key="$route.fullPath"></router-view>
+        <router-view></router-view>
       </transition>
-  </div>
+    </div>
     <link
       rel="stylesheet"
       href="//cdn.materialdesignicons.com/2.5.94/css/materialdesignicons.min.css"
@@ -75,43 +79,29 @@
 </template>
 
 <script>
-// global.jQuery = require('jquery');
-// var $ = global.jQuery;
-// widows.$ = $;
-
 export default {
   name: "app",
-  data(){
-    return{
-    showNav: false
-    }
+  data() {
+    return {
+      showNav: false
+    };
   },
   computed: {
     activeUser() {
-      console.log(this.$store.state.authentication.user)
+      console.log(this.$store.state.authentication.user);
       return this.$store.state.authentication.user;
     },
-    isAdmin () {
+    isAdmin() {
       let user = this.$store.state.authentication.user;
       if (user != null) {
-        if(user.user.roles == "Admin"){
+        if (user.user.roles == "Admin") {
           return true;
-        }else {
+        } else {
           return false;
         }
       }
     }
   },
-  // created(){
-  // $(".navbar-burger").click(function() {
-  
-  //       // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
-  //       $(".navbar-burger").toggleClass("is-active");
-  //       $(".navbar-menu").toggleClass("is-active");
-  
-  //   });
-  
-  // },
   methods: {
     login() {},
     async logout() {
@@ -168,6 +158,4 @@ export default {
 .fade-leave-active {
   opacity: 0;
 }
-
-
 </style>

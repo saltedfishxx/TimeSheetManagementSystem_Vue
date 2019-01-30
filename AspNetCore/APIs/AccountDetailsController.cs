@@ -39,6 +39,73 @@ namespace TimeSheetManagementSystem.APIs
             _userService = userService;
         }
 
+        //GET AccountDetails/GetAllDetails
+        [HttpGet("GetAllDetails")]
+        public IActionResult GetAllDetails()
+        {
+            //TODO: Fix code here
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            int userId = 0;
+            if (identity != null)
+            {
+                IEnumerable<Claim> claims = identity.Claims;
+
+                userId = Int32.Parse(identity.FindFirst("userid").Value);
+                var user = _userService.GetById(userId);
+                string roles = user.Roles;
+
+                List<object> accountDetailList = new List<object>();
+                var accountDetails = Database.AccountDetails
+                    .Include(input => input.CustomerAccount);
+
+                if (accountDetails != null)
+                {
+
+                    foreach (var oneDetail in accountDetails)
+                    {
+                        if (roles.Equals("Admin"))
+                        {
+                            accountDetailList.Add(new
+                            {
+                                accountDetailId = oneDetail.AccountDetailId,
+                                dayOfWeek = oneDetail.DayOfWeekNumber,
+                                startTimeMin = oneDetail.StartTimeInMinutes,
+                                visibility = oneDetail.IsVisible,
+                                endTimeMin = oneDetail.EndTimeInMinutes,
+                                startDate = oneDetail.EffectiveStartDate,
+                                endDate = oneDetail.EffectiveEndDate,
+                                updatedAt = oneDetail.CustomerAccount.UpdatedAt,
+                                updatedBy = oneDetail.CustomerAccount.UpdatedBy.UserName
+                            });
+                        }
+                        else if (roles.Equals("Instructor"))
+                        {
+                            if (oneDetail.IsVisible == true)
+                            {
+                                accountDetailList.Add(new
+                                {
+                                    accountDetailId = oneDetail.AccountDetailId,
+                                    dayOfWeek = oneDetail.DayOfWeekNumber,
+                                    startTimeMin = oneDetail.StartTimeInMinutes,
+                                    visibility = oneDetail.IsVisible,
+                                    endTimeMin = oneDetail.EndTimeInMinutes,
+                                    startDate = oneDetail.EffectiveStartDate,
+                                    endDate = oneDetail.EffectiveEndDate,
+                                    updatedAt = oneDetail.CustomerAccount.UpdatedAt,
+                                    //updatedBy = oneDetail.CustomerAccount.UpdatedBy.UserName
+                                });
+                            }
+                        }
+                    }//foreach
+                }
+                return new JsonResult(accountDetailList);
+            }
+            else
+            {
+                return BadRequest("User not authorized");
+            }
+        }
+
         //GET 
         [HttpGet("{custID}")]
         public IActionResult Get(int custID)
@@ -134,8 +201,8 @@ namespace TimeSheetManagementSystem.APIs
                     startTimeMin = accountDetail.StartTimeInMinutes,
                     visibility = accountDetail.IsVisible,
                     endTimeMin = accountDetail.EndTimeInMinutes,
-                    startDate = accountDetail.EffectiveStartDate.ToString("dd/MM/yyyy"),
-                    endDate = accountDetail.EffectiveEndDate?.ToString("dd/MM/yyyy"),
+                    startDate = accountDetail.EffectiveStartDate,
+                    endDate = accountDetail.EffectiveEndDate,
                     //updatedAt = accountDetail.CustomerAccount.UpdatedAt.ToString("dd/MM/yyyy"),
                     customerAccountId = accountDetail.CustomerAccountId
                     //updatedBy = accountDetail.CustomerAccount.UpdatedBy.UserName

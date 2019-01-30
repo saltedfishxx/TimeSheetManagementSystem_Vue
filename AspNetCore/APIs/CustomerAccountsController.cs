@@ -58,7 +58,8 @@ namespace TimeSheetManagementSystem.APIs
                 var customers = Database.CustomerAccounts
                     .Include(input => input.CreatedBy)
                     .Include(input => input.UpdatedBy)
-                    .Include(input => input.AccountRates);
+                    .Include(input => input.AccountRates)
+                    .Include(input => input.AccountDetails);
 
 
                 foreach (var oneCustomer in customers)
@@ -72,6 +73,7 @@ namespace TimeSheetManagementSystem.APIs
                             comments = oneCustomer.Comments,
                             visibility = oneCustomer.IsVisible,
                             numAccRates = oneCustomer.AccountRates.Count,
+                            numAccDetails = oneCustomer.AccountDetails.Count,
                             updatedAt = oneCustomer.UpdatedAt.ToString("dd/MM/yyyy"),
                             updatedBy = oneCustomer.UpdatedBy.UserName
                         });
@@ -87,6 +89,7 @@ namespace TimeSheetManagementSystem.APIs
                                 comments = oneCustomer.Comments,
                                 visibility = oneCustomer.IsVisible,
                                 numAccRates = oneCustomer.AccountRates.Count,
+                                numAccDetails = oneCustomer.AccountDetails.Count,
                                 updatedAt = oneCustomer.UpdatedAt.ToString("dd/MM/yyyy"),
                                 updatedBy = oneCustomer.UpdatedBy.UserName
                             });
@@ -102,6 +105,71 @@ namespace TimeSheetManagementSystem.APIs
             }
         }
 
+        //GET 
+        [HttpGet("CustomerList")]
+        public IActionResult GetCustomerList()
+        {
+            //TODO: Fix code here
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            int userId = 0;
+            if (identity != null)
+            {
+                IEnumerable<Claim> claims = identity.Claims;
+
+                userId = Int32.Parse(identity.FindFirst("userid").Value);
+                var user = _userService.GetById(userId);
+                string roles = user.Roles;
+
+                List<object> customerList = new List<object>();
+                var customers = Database.CustomerAccounts
+                    .Include(input => input.CreatedBy)
+                    .Include(input => input.UpdatedBy)
+                    .Include(input => input.AccountRates)
+                    .Include(input => input.AccountDetails);
+
+
+                foreach (var oneCustomer in customers)
+                {
+                    if (roles.Equals("Admin"))
+                    {
+                        customerList.Add(new
+                        {
+                            customerAccountId = oneCustomer.CustomerAccountId,
+                            accountName = oneCustomer.AccountName,
+                            comments = oneCustomer.Comments,
+                            visibility = oneCustomer.IsVisible,
+                            numAccRates = oneCustomer.AccountRates.Count,
+                            numAccDetails = oneCustomer.AccountDetails.Count,
+                            updatedAt = oneCustomer.UpdatedAt,
+                            updatedBy = oneCustomer.UpdatedBy.UserName
+                        });
+                    }
+                    else
+                    {
+                        if (oneCustomer.IsVisible == true)
+                        {
+                            customerList.Add(new
+                            {
+                                customerAccountId = oneCustomer.CustomerAccountId,
+                                accountName = oneCustomer.AccountName,
+                                comments = oneCustomer.Comments,
+                                visibility = oneCustomer.IsVisible,
+                                numAccRates = oneCustomer.AccountRates.Count,
+                                numAccDetails = oneCustomer.AccountDetails.Count,
+                                updatedAt = oneCustomer.UpdatedAt,
+                                updatedBy = oneCustomer.UpdatedBy.UserName
+                            });
+                        }
+                    }
+                }//foreach
+
+                return new JsonResult(customerList);
+            }
+            else
+            {
+                return BadRequest("User not authorized");
+            }
+        }
         //GET api/CustomerAccounts/UpdateGeneralInfo/5
         [HttpGet("UpdateGeneralInfo/{custID}")]
         public IActionResult GetCustInfo(int custID)
@@ -133,6 +201,45 @@ namespace TimeSheetManagementSystem.APIs
             else
             {
                 return BadRequest("User not authorised");
+            }
+        }
+
+        //GET api/CustomerAccounts/GetAllRates
+        [HttpGet("GetAllRates")]
+        public IActionResult GetAllRates()
+        {
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            int userId = 0;
+            if (identity != null)
+            {
+                IEnumerable<Claim> claims = identity.Claims;
+
+                userId = Int32.Parse(identity.FindFirst("userid").Value);
+
+                List<object> ratesList = new List<object>();
+                var accountRates = Database.AccountRates
+                .Include(input => input.CustomerAccount);
+
+                foreach (var oneRate in accountRates)
+                {
+                    ratesList.Add(new
+                    {
+                        customerAccountId = oneRate.CustomerAccountId,
+                        rateId = oneRate.AccountRateId,
+                        rateHour = oneRate.RatePerHour,
+                        startDate = oneRate.EffectiveStartDate,
+                        endDate = oneRate.EffectiveEndDate,
+                        updatedAt = oneRate.CustomerAccount.UpdatedAt,
+                        updatedBy = oneRate.CustomerAccount.UpdatedBy.UserName
+
+                    });
+                }//foreach
+
+                return new JsonResult(ratesList);
+            }
+            else
+            {
+                return BadRequest("User unauthorised");
             }
         }
 
@@ -479,11 +586,11 @@ namespace TimeSheetManagementSystem.APIs
                         newRate.EffectiveEndDate = Convert.ToDateTime(webFormData["endDate"]);
 
                     }
-                        Console.Write(newRate);
-                        Database.AccountRates.Add(newRate);
+                    Console.Write(newRate);
+                    Database.AccountRates.Add(newRate);
 
-                        Database.SaveChanges();
-                
+                    Database.SaveChanges();
+
 
 
                 }
@@ -610,6 +717,26 @@ namespace TimeSheetManagementSystem.APIs
                             Database.AccountRates.Remove(rates);
                         }
                         Database.SaveChanges();
+
+                        try
+                        {
+                            var delDetails = Database.AccountDetails
+                            .Where(eachDetail => eachDetail.CustomerAccountId == id);
+
+                            foreach (var details in delDetails)
+                            {
+                                Database.AccountDetails.Remove(details);
+                            }
+                            Database.SaveChanges();
+
+                        }
+                        catch (Exception ex)
+                        {
+                            customMessage = "Unable to delete account record.";
+                            object httpFailRequestResultMessage = new { message = customMessage };
+
+                            return BadRequest(httpFailRequestResultMessage);
+                        }//End of try .. catch block on manage data
                     }
                     catch (Exception ex)
                     {

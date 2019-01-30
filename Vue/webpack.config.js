@@ -7,13 +7,13 @@ module.exports = {
     resolve: {
         alias: {
             'vue$': 'vue/dist/vue.esm.js',
-          },
-        extensions: ['.js', '.vue'],
+        },
+        extensions: ['*', '.js', '.vue', '.json'],
 
     },
-   
+
     module: {
-         // apply loaders to files that meet given conditions
+        // apply loaders to files that meet given conditions
         rules: [
             {
                 test: /\.vue?$/,
@@ -28,18 +28,18 @@ module.exports = {
             {
                 test: /\.(gif|svg|jpg|png)$/,
                 loader: "file-loader",
-              },
-              {
+            },
+            {
                 test: /\.css$/,
-                loader:[ 'style-loader', 'css-loader' ]
-        }
+                loader: ['style-loader', 'css-loader']
+            }
         ],
-       
+
     },
     plugins: [new HtmlWebpackPlugin({
         template: './src/index.html',
         favicon: "./src/static/img/icons/favicon.ico"
-    })],
+    }),],
     devServer: {
         historyApiFallback: true
     },

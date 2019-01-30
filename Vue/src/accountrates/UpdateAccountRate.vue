@@ -134,11 +134,9 @@
 
 <script>
 import qs from "qs";
-import axios from "axios";
+import api from "../_services/restful.service";
 import { router, authHeader, authHeaderUrlencoded } from "../_helpers";
 import moment, { now } from "moment";
-
-axios.defaults.headers["X-Requested-With"] = "XMLHttpRequest";
 
 export default {
   data() {
@@ -158,47 +156,30 @@ export default {
     this.get();
   },
   methods: {
-    getAll() {
-      axios
-        .get(
-          "http://localhost:5000/api/CustomerAccounts/ManageAccountRates/" +
-              this.customer.customerAccountId,
-          {
-            headers: authHeader()
-          }
-        )
-        .then(response => {
-          // JSON responses are automatically parsed.
-          this.accountRates = response.data;
-          //return data;
-        })
-        .catch(e => {
-          console.log(e);
-        });
+    async getAll() {
+      try {
+        this.accountRates = await api.getAll(
+          "/CustomerAccounts/ManageAccountRates/" +
+            this.customer.customerAccountId
+        );
+      } finally {
+      }
     },
-    get() {
-      axios
-        .get(
-          "http://localhost:5000/api/CustomerAccounts/UpdateAccountRates/" +
-            this.$route.params.rateId,
-          {
-            headers: authHeader()
-          }
-        )
-        .then(response => {
-          // JSON responses are automatically parsed.
-          this.customer = response.data;
-          this.customer.startDate = new Date(this.customer.startDate);
-          if (this.customer.endDate == null || this.customer.endDate == "") {
-            this.customer.endDate = null;
-          } else {
-            this.customer.endDate = new Date(this.customer.endDate);
-          }
-              this.getAll();
-        })
-        .catch(e => {
-          console.log(e);
-        });
+    async get() {
+      try {
+        this.customer = await api.get(
+          "/CustomerAccounts/UpdateAccountRates/" + this.$route.params.rateId
+        );
+      } finally {
+        // convert to date
+        this.customer.startDate = new Date(this.customer.startDate);
+        if (this.customer.endDate == null || this.customer.endDate == "") {
+          this.customer.endDate = null;
+        } else {
+          this.customer.endDate = new Date(this.customer.endDate);
+        }
+        this.getAll();
+      }
     },
     async updateAccount(customerAccountId) {
       console.log("'" + JSON.stringify(this.customer) + "'");
@@ -208,15 +189,13 @@ export default {
 
       var accRateStart = null;
       var accRateEnd = null;
-     
-     //validation 
+
+      //validation
       for (let i = 0; i < this.accountRates.length; i++) {
-
         if (this.accountRates[i].rateId != this.$route.params.rateId) {
-
           accRateStart = moment(this.accountRates[i].startDate, "DD-MM-YYYY");
           accRateEnd = moment(this.accountRates[i].endDate, "DD-MM-YYYY");
-          
+
           console.log(accRateStart, accRateEnd);
           console.log(dateA, dateB);
 
@@ -256,30 +235,21 @@ export default {
         this.hasStartDateError = false;
         this.hasClashError = false;
         this.hasDateClash == false;
-        axios
-          .put(
-            "http://localhost:5000/api/CustomerAccounts/UpdateAccountRates/" +
-              this.$route.params.rateId,
 
-            qs.stringify(this.customer),
-            {
-              headers: authHeaderUrlencoded()
-            }
-          )
-          .then(response => {
-            console.log(response);
-          })
-          .catch(error => {
-            console.log(error.response);
-          });
-
-        this.customer = {
-          rateHour: "",
-          startDate: null,
-          endDate: null
-        };
-        // go back to previous page (manage account rate)
-        router.go(-1);
+        try {
+          await api.update(
+            "/CustomerAccounts/UpdateAccountRates/" + this.$route.params.rateId,
+            qs.stringify(this.customer)
+          );
+        } finally {
+          this.customer = {
+            rateHour: "",
+            startDate: null,
+            endDate: null
+          };
+          // go back to previous page (manage account rate)
+          router.go(-1);
+        }
       }
     },
     back(customerAccountId) {

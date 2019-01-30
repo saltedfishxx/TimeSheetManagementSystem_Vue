@@ -5,7 +5,6 @@
       <h2 class="subtitle is-4 createTitle">Create Account Rate</h2>
     </div>
     <div class="box boxStyle">
-      <label class="field-label is-medium">Rate per Hour</label>
       <div class="formStyle">
         <label class="field-label is-medium">Rate per Hour</label>
         <div class="field is-horizontal fieldStyle">
@@ -133,11 +132,9 @@
 
 <script>
 import qs from "qs";
-import axios from "axios";
+import api from "../_services/restful.service";
 import { router, authHeader, authHeaderUrlencoded } from "../_helpers";
 import moment from "moment";
-
-axios.defaults.headers["X-Requested-With"] = "XMLHttpRequest";
 
 export default {
   data() {
@@ -156,27 +153,16 @@ export default {
     this.getAll();
   },
   methods: {
-    getAll() {
-      axios
-        .get(
-          "http://localhost:5000/api/CustomerAccounts/ManageAccountRates/" +
-            this.$route.params.customerAccountId,
-          {
-            headers: authHeader()
-          }
-        )
-        .then(response => {
-          // JSON responses are automatically parsed.
-          this.accountRates = response.data;
-          //return data;
-        })
-        .catch(e => {
-          console.log(e);
-        });
+    async getAll() {
+      try {
+        this.accountRates = await api.getAll(
+          "/CustomerAccounts/ManageAccountRates/" +
+            this.$route.params.customerAccountId
+        );
+      } finally {
+      }
     },
     async createAccount() {
-      console.log("'" + JSON.stringify(this.customer) + "'");
-
       var dateA = moment(this.customer.startDate, "DD-MM-YYYY"); // replace format by your one
       var dateB = moment(this.customer.endDate, "DD-MM-YYYY");
       const numOnly = new RegExp("^[0-9]*$");
@@ -190,7 +176,7 @@ export default {
         accRateEnd = moment(this.accountRates[i].endDate, "DD-MM-YYYY");
         console.log(accRateStart, accRateEnd);
         console.log(dateA, dateB);
- 
+
         if (dateB != null || dateB != "") {
           if (dateA.diff(accRateEnd) <= 0 && accRateStart.diff(dateB) <= 0) {
             this.hasDateClash = true;
@@ -236,30 +222,22 @@ export default {
         this.hasClashError = false;
         this.hasDateClash == false;
         //send request to web api to post data
-        axios
-          .post(
-            "http://localhost:5000/api/CustomerAccounts/CreateAccountRate/" +
+
+        try {
+          await api.create(
+            "/CustomerAccounts/CreateAccountRate/" +
               this.$route.params.customerAccountId,
-
-            qs.stringify(this.customer),
-            {
-              headers: authHeaderUrlencoded()
-            }
-          )
-          .then(response => {
-            console.log(response);
-          })
-          .catch(error => {
-            console.log(error.response);
-          });
-
-        this.customer = {
-          rateHour: "",
-          startDate: null,
-          endDate: null
-        };
-        // redirect to previous page
-        router.go(-1);
+            qs.stringify(this.customer)
+          );
+        } finally {
+          this.customer = {
+            rateHour: "",
+            startDate: null,
+            endDate: null
+          };
+          // redirect to previous page
+          router.go(-1);
+        }
       }
     }
   }

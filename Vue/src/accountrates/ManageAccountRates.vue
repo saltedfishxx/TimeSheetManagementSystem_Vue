@@ -8,6 +8,19 @@
       </button>
       <h1 class="sectionStyle">Manage Account Rates</h1>
     </section>
+    <nav class="breadcrumb" aria-label="breadcrumbs">
+      <ul>
+        <li>
+          <a href="/">Home</a>
+        </li>
+        <li>
+          <a href="/ManageCustomerAccounts" aria-current="page">Manage Customer Accounts</a>
+        </li>
+        <li class="is-active">
+          <a href="/" aria-current="page">Manage Account Rates</a>
+        </li>
+      </ul>
+    </nav>
     <section>
       <div class="level panel-heading panelStyle">
         <div class="level-left">
@@ -55,14 +68,10 @@
           <b-table-column field="rateHour" label="Rate Per Hour" sortable>{{ props.row.rateHour }}</b-table-column>
 
           <b-table-column field="startDate" label="Effective Start Date" sortable>
-            <span>
-              {{ props.row.startDate}}
-            </span>
+            <span>{{ props.row.startDate}}</span>
           </b-table-column>
-          <b-table-column field="endDate" label="Effective End Date" sortable >
-            <span>
-              {{ props.row.endDate }}
-            </span>
+          <b-table-column field="endDate" label="Effective End Date" sortable>
+            <span>{{ props.row.endDate }}</span>
           </b-table-column>
 
           <b-table-column custom-key="actions">
@@ -72,6 +81,7 @@
             </button>
             <button
               class="button is-danger"
+              :disabled="isOne(props.row.rateId, props.row.startDate, props.row.endDate)"
               @click="deleteRow(props.row.rateId, $route.params.customerAccountId, props.row)"
             >
               <b-icon pack="fas" icon="trash-alt"></b-icon>
@@ -100,13 +110,14 @@
   margin-left: 1em;
 }
 .panelStyle {
-  margin-top: 2em;
+  margin: 0;
 }
 </style>
 
 <script>
-import axios from "axios";
 import { router, authHeader } from "../_helpers";
+import api from "../_services/restful.service";
+import moment from "moment";
 
 export default {
   data() {
@@ -124,11 +135,11 @@ export default {
       perPage: 5
     };
   },
-  watch:{
-    $route (to, from){
-        this.getAll();
+  watch: {
+    $route(to, from) {
+      this.getAll();
     }
-} ,
+  },
   async created() {
     const loadingComponent = this.$loading.open({
       container: this.isFullPage ? null : this.$refs.element.$el
@@ -138,24 +149,32 @@ export default {
 
     var custAccId = this.$route.params.customerAccountId;
   },
+  computed: {},
   methods: {
-    getAll() {
-      axios
-        .get(
-          "http://localhost:5000/api/CustomerAccounts/ManageAccountRates/" +
-            this.$route.params.customerAccountId,
-          {
-            headers: authHeader()
-          }
-        )
-        .then(response => {
-          // JSON responses are automatically parsed.
-          this.data = response.data;
-          //return data;
-        })
-        .catch(e => {
-          console.log(e);
-        });
+    isOne(id, startDate, endDate) {
+      if (this.data.length == 1) {
+        return true;
+      } else {
+        var starting = moment(startDate, "DD-MM-YYYY"); // replace format by your one
+        var ending = moment(endDate, "DD-MM-YYYY");
+        var today = moment(new Date());
+        if (today.diff(starting) >= 0 || today.diff(ending) >= 0) {
+          console.log("is true");
+          return true;
+        } else {
+          console.log("is false");
+          return false;
+        }
+      }
+    },
+    async getAll() {
+      try {
+        this.data = await api.getAll(
+          "/CustomerAccounts/ManageAccountRates/" +
+            this.$route.params.customerAccountId
+        );
+      } finally {
+      }
     },
     updateRate(rateId) {
       router.push({ path: `/UpdateAccountRate/${rateId}` });
@@ -166,16 +185,8 @@ export default {
     back() {
       router.push({ path: `/ManageCustomerAccounts` });
     },
-    deleteRow(accountId, custId, row) {
+    async deleteRow(accountId, custId, row) {
       console.log(accountId);
-      if (this.data.length == 1){
-         this.$snackbar.open({
-                    duration: 3000,
-                    message: "Delete failed: Customer needs to have at least 1 account rate",
-                    type: 'is-warning',
-                    position: 'is-top',  
-                });
-      }else{
       this.$dialog.confirm({
         title: "Deleting Rate Record",
         message:
@@ -183,34 +194,25 @@ export default {
         confirmText: "Delete Rate",
         type: "is-danger",
         hasIcon: true,
-        onConfirm: () => {
+        onConfirm: async () => {
           console.log(accountId);
-          axios
-            .delete(
-              "http://localhost:5000/api/CustomerAccounts/UpdateAccountRates/" +
-                accountId,
-              {
-                headers: authHeader()
-              }
-            )
-            .then(response => {
-              // JSON responses are automatically parsed.
-              this.$toast.open({
-                duration: 1000,
-                message: "Account Rate deleted!"
-              });
-              let index = this.data.findIndex(row => row.rateId === accountId);
-
-              this.data.splice(index, 1);
-              this.$forceUpdate();
-              console.log("data", this.data);
-            })
-            .catch(e => {
-              console.log(e);
+          try {
+            await api.delete(
+              "/CustomerAccounts/UpdateAccountRates/" + accountId
+            );
+          } finally {
+            this.$toast.open({
+              duration: 1000,
+              message: "Account Rate deleted!"
             });
+            let index = this.data.findIndex(row => row.rateId === accountId);
+
+            this.data.splice(index, 1);
+            this.$forceUpdate();
+            console.log("data", this.data);
+          }
         }
       });
-      }
     }
   }
 };
