@@ -2,6 +2,11 @@
 
 
 This zip file for TimeSheeManagementSystem_Vue contains 2 folders:
+## Installation
+Download this project as zip file or git clone:
+  ```
+    D:/desktop/project > git clone https://github.com/saltedfishxx/TimeSheetManagementSystem_Vue.git
+  ```
 
 ## AspNetCore (backend web api)
   *	Before running the code, make sure that:
