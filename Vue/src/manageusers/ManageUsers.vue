@@ -67,18 +67,13 @@
               <b-icon pack="fas" icon="edit"></b-icon>
               <span>Update</span>
             </button>
-            <button class="button is-danger" @click="deleteRow(props.row.userId)">
+            <button class="button is-danger" disabled="true" @click="deleteRow(props.row.userId)">
               <b-icon pack="fas" icon="trash-alt"></b-icon>
               <span>Delete</span>
             </button>
           </b-table-column>
         </template>
       </b-table>
-      <link
-        rel="stylesheet"
-        href="//cdn.materialdesignicons.com/2.5.94/css/materialdesignicons.min.css"
-      >
-      <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css">
     </section>
   </div>
 </template>
@@ -139,7 +134,6 @@ export default {
           userService
             .deleteUser(userid)
             .then(response => {
-              // JSON responses are automatically parsed.
               let index = this.data.findIndex(row => row.userId === userid);
               this.data.splice(index, 1);
             })

@@ -38,7 +38,7 @@
             </div>
           </div>
         </div>
-        <!-- todo: add form input -->
+        <!-- form input -->
         <div class="field is-horizontal fieldStyle">
           <div class="field-label is-normal">
             <label class="label">Start Time</label>

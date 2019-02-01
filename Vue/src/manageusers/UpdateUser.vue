@@ -109,7 +109,6 @@ export default {
       userService
         .get(this.$route.params.userid)
         .then(response => {
-          // JSON responses are automatically parsed.
           this.user = response;
         })
         .catch(e => {

@@ -230,7 +230,8 @@ namespace TimeSheetManagementSystem.APIs
                         startDate = oneRate.EffectiveStartDate,
                         endDate = oneRate.EffectiveEndDate,
                         updatedAt = oneRate.CustomerAccount.UpdatedAt,
-                        updatedBy = oneRate.CustomerAccount.UpdatedBy.UserName
+                        updatedBy = oneRate.CustomerAccount.UpdatedBy.UserName,
+                        accountName = oneRate.CustomerAccount.AccountName
 
                     });
                 }//foreach

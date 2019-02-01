@@ -7,10 +7,10 @@
     <nav class="breadcrumb" aria-label="breadcrumbs">
       <ul>
         <li>
-          <a href="/">Home</a>
+          <router-link to="/">Home</router-link>
         </li>
         <li class="is-active">
-          <a href="/ManageCustomerAccounts" aria-current="page">Manage Customer Accounts</a>
+          <router-link to="/ManageCustomerAccounts" aria-current="page">Manage Customer Accounts</router-link>
         </li>
       </ul>
     </nav>
@@ -23,6 +23,7 @@
               <option value="desc">Default sort direction: DESC</option>
             </b-select>
             <b-select v-model="perPage" :disabled="!isPaginated">
+              <option value="3">3 per page</option>
               <option value="5">5 per page</option>
               <option value="10">10 per page</option>
               <option value="15">15 per page</option>
@@ -63,7 +64,12 @@
           </section>
         </template>
         <template slot-scope="props">
-          <b-table-column field="accountName" label="Customer" sortable>{{ props.row.accountName }}</b-table-column>
+          <b-table-column
+            field="accountName"
+            label="Customer"
+            style="width:8.5%"
+            sortable
+          >{{ props.row.accountName }}</b-table-column>
 
           <b-table-column
             field="numAccRates"
@@ -141,11 +147,6 @@
           </article>
         </template>
       </b-table>
-      <link
-        rel="stylesheet"
-        href="//cdn.materialdesignicons.com/2.5.94/css/materialdesignicons.min.css"
-      >
-      <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css">
     </section>
   </div>
 </template>
@@ -167,7 +168,7 @@ export default {
       isPaginationSimple: false,
       defaultSortDirection: "desc",
       currentPage: 1,
-      perPage: 5
+      perPage: 3
     };
   },
   watch: {

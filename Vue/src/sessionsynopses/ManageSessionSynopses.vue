@@ -7,10 +7,10 @@
     <nav class="breadcrumb" aria-label="breadcrumbs">
       <ul>
         <li>
-          <a href="/">Home</a>
+          <router-link to="/">Home</router-link>
         </li>
         <li class="is-active">
-          <a href="/ManageSessionSynopses" aria-current="page">Manage Session Synopses</a>
+          <router-link to="/ManageSessionSynopses" aria-current="page">Manage Session Synopses</router-link>
         </li>
       </ul>
     </nav>
@@ -89,11 +89,6 @@
           </b-table-column>
         </template>
       </b-table>
-      <link
-        rel="stylesheet"
-        href="//cdn.materialdesignicons.com/2.5.94/css/materialdesignicons.min.css"
-      >
-      <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css">
     </section>
   </div>
 </template>

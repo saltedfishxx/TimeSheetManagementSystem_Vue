@@ -6,12 +6,16 @@
           <b-icon pack="fas" icon="tachometer-alt" type="is-danger" size="is-large"/>
           <div class="title is-2" style="display: inline-block; margin-left: 0.3em;">DASHBOARD</div>
           <div class="subtitle is-6" style="margin-top:1em; display: inline-block;">Records Overview</div>
-          <button class="button is-info" style="float:right;" @click="changeView()">
+          <button
+            class="button is-danger"
+            style="float:right;  margin-top:1.5em;"
+            @click="changeView()"
+          >
             <b-icon
               pack="fas"
               icon="times-circle"
               type="is-white"
-              custom-class="faa-parent animated-hover faa-flash animated"
+              custom-class="faa-parent animated-hover faa-pulse animated faa-fast"
               style="margin-right: 1em;"
             />Exit Dashboard
           </button>
@@ -21,67 +25,31 @@
           <div class="tile is-vertical is-8">
             <div class="tile">
               <div class="tile is-parent">
-                <article class="tile is-child tileStyle notification is-info">
-                  <div class="level-left">
-                    <b-icon pack="fas" icon="calendar-alt" size="is-medium" type="is-light"></b-icon>
-                    <p class="title is-4 createTitle" style="color:white;">Recent Activities</p>
-                  </div>
-                  <div style="margin-top:2em;">
-                    <nav
-                      class="panel"
-                      style="background-color: white; color:black; font-size:10pt;"
-                    >
-                      <a
-                        class="panel-block is-active"
-                        v-for="(row, index) in this.allData"
-                        v-bind:key="index"
-                        v-bind:index="index"
-                      >
-                        <span class="panel-icon">
-                          <b-icon
-                            v-show="row.rowType == 2"
-                            icon="clock"
-                            aria-hidden="true"
-                            type="is-success"
-                          ></b-icon>
-                          <b-icon
-                            v-show="row.rowType == 3"
-                            icon="clipboard"
-                            aria-hidden="true"
-                            type="is-danger"
-                          ></b-icon>
-                          <b-icon
-                            v-show="row.rowType == 4"
-                            pack="fas"
-                            icon="user"
-                            aria-hidden="true"
-                            type="is-info"
-                          ></b-icon>
-                        </span>
-                        <span style="margin:1em; width:100%;" v-show="row.rowType == 2">
-                          <b>{{row.updatedBy}}</b>
-                          updated Account Rate
-                          <span
-                            class="tag is-success"
-                            style="float:right;"
-                          >
-                            <time-ago :refresh="60" :datetime="row.updatedAt"></time-ago>
-                          </span>
-                        </span>
-                        <span style="margin:1em; width:100%;" v-show="row.rowType == 3">
-                          <b>{{row.updatedBy}}</b> updated Account Detail
-                          <span class="tag is-dark" style="float:right;">
-                            <time-ago :refresh="60" :datetime="row.updatedAt"></time-ago>
-                          </span>
-                        </span>
-                        <span style="margin:1em; width:100%;" v-show="row.rowType == 4">
-                          <b>{{row.updatedBy}}</b> updated Customer Account
-                          <span class="tag is-link" style="float:right;">
-                            <time-ago :refresh="60" :datetime="row.updatedAt"></time-ago>
-                          </span>
-                        </span>
-                      </a>
-                    </nav>
+                <article class="tile is-child tileStyle notification is-dark">
+                  <div class="content">
+                    <div class="level-left">
+                      <b-icon pack="fas" icon="clock" size="is-medium" type="is-warning"></b-icon>
+                      <p class="title is-4 createTitle" style="color:white;">Account Rates/Details</p>
+                    </div>
+                    <div style="margin:2em auto;">
+                      <b-datepicker
+                        class="dateStyle"
+                        inline
+                        v-model="date"
+                        :events="events"
+                        indicators="dots"
+                      ></b-datepicker>
+                      <div style="clear:both; padding-top: 1em; font-size: 10pt; margin-left:2em;">
+                        <span class="tag is-primary">&nbsp;</span>
+                        <span class="tag is-info">&nbsp;</span>
+                        Account Details: Start/End Dates
+                      </div>
+                      <div style="margin-top: 1em; font-size: 10pt; margin-left:2em;">
+                        <span class="tag is-warning">&nbsp;</span>
+                        <span class="tag is-danger">&nbsp;</span>
+                        Account Rates: Start/End Dates
+                      </div>
+                    </div>
                   </div>
                 </article>
               </div>
@@ -94,7 +62,7 @@
 
                   <section style="margin: 2em auto;">
                     <b-table
-                      :data="isEmpty ? [] : dataSession"
+                      :data="isEmpty ? [] : sessionListShort"
                       :striped="isStriped"
                       :per-page="perPage"
                       :hoverable="isHoverable"
@@ -133,14 +101,6 @@
                         </b-table-column>
                       </template>
                     </b-table>
-                    <link
-                      rel="stylesheet"
-                      href="//cdn.materialdesignicons.com/2.5.94/css/materialdesignicons.min.css"
-                    >
-                    <link
-                      rel="stylesheet"
-                      href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
-                    >
                   </section>
                   <router-link to="/ManageSessionSynopses">
                     <div
@@ -164,7 +124,7 @@
                   </div>
                   <section style="margin: 2em auto;">
                     <b-table
-                      :data="isEmpty ? [] : dataCustomers"
+                      :data="isEmpty ? [] : customerListShort"
                       :striped="isStriped"
                       :per-page="perPage"
                       :hoverable="isHoverable"
@@ -219,52 +179,72 @@
                 </article>
               </div>
             </div>
-            <!-- <div class="tile is-parent">
-              <article class="tile is-child notification is-danger">
-                <p class="title">Wide tile</p>
-                <p class="subtitle">Aligned with the right tile</p>
-                <div class="content">
-
-                </div>
-              </article>
-            </div>-->
           </div>
           <div class="tile is-parent">
-            <article class="tile is-child tileStyle notification is-dark">
-              <div class="content">
-                <div class="level-left">
-                  <b-icon pack="fas" icon="clock" size="is-medium" type="is-warning"></b-icon>
-                  <p class="title is-4 createTitle" style="color:white;">Account Rates/Details</p>
-                </div>
-                <div style="margin:2em auto;">
-                  <b-datepicker
-                    class="dateStyle"
-                    inline
-                    v-model="date"
-                    :events="events"
-                    indicators="dots"
-                  ></b-datepicker>
-                  <div style="clear:both; padding-top: 1em; font-size: 10pt; margin-left:2em;">
-                    <span class="tag is-primary">&nbsp;</span>
-                    <span class="tag is-info">&nbsp;</span>
-                    Account Details: Start/End Dates
-                  </div>
-                  <div style="margin-top: 1em; font-size: 10pt; margin-left:2em;">
-                    <span class="tag is-warning">&nbsp;</span>
-                    <span class="tag is-danger">&nbsp;</span>
-                    Account Rates: Start/End Dates
-                  </div>
-                </div>
+            <article class="tile is-child tileStyle notification is-info">
+              <div class="level-left">
+                <b-icon pack="fas" icon="calendar-alt" size="is-medium" type="is-light"></b-icon>
+                <p class="title is-4 createTitle" style="color:white;">Recent Activities</p>
+              </div>
+              <div style="margin-top:2em;">
+                <nav class="panel" style="background-color: white; color:black; font-size:10pt;">
+                  <a
+                    class="panel-block is-active"
+                    v-for="(row, index) in this.allData"
+                    v-bind:key="index"
+                    v-bind:index="index"
+                  >
+                    <span class="panel-icon">
+                      <b-icon
+                        v-show="row.rowType == 2"
+                        icon="clock"
+                        aria-hidden="true"
+                        type="is-success"
+                      ></b-icon>
+                      <b-icon
+                        v-show="row.rowType == 3"
+                        icon="clipboard"
+                        aria-hidden="true"
+                        type="is-danger"
+                      ></b-icon>
+                      <b-icon
+                        v-show="row.rowType == 4"
+                        pack="fas"
+                        icon="user"
+                        aria-hidden="true"
+                        type="is-info"
+                      ></b-icon>
+                    </span>
+                    <span style="margin:1em; width:100%;" v-show="row.rowType == 2">
+                      <b>{{row.updatedBy}}</b>
+                      updated Account Rate
+                      <span
+                        class="tag is-success"
+                        style="float:right;"
+                      >
+                        <time-ago :refresh="60" :datetime="row.updatedAt"></time-ago>
+                      </span>
+                    </span>
+                    <span style="margin:1em; width:100%;" v-show="row.rowType == 3">
+                      <b>{{row.updatedBy}}</b> updated Account Detail
+                      <span class="tag is-dark" style="float:right;">
+                        <time-ago :refresh="60" :datetime="row.updatedAt"></time-ago>
+                      </span>
+                    </span>
+                    <span style="margin:1em; width:100%;" v-show="row.rowType == 4">
+                      <b>{{row.updatedBy}}</b> updated Customer Account
+                      <span class="tag is-link" style="float:right;">
+                        <time-ago :refresh="60" :datetime="row.updatedAt"></time-ago>
+                      </span>
+                    </span>
+                  </a>
+                </nav>
               </div>
             </article>
           </div>
         </div>
       </div>
     </div>
-    <link
-      rel="stylesheet"
-      href="node_modules\font-awesome-animation\dist\font-awesome-animation.min.css"
-    >
   </div>
 </template>
 
@@ -282,7 +262,9 @@ export default {
   },
   data() {
     const dataSession = [];
+    const sessionListShort = [];
     const dataCustomers = [];
+    const customerListShort = [];
     const dataAccountRates = [];
     const dataAccountDetails = [];
     const dataCustomersWithDate = [];
@@ -293,6 +275,8 @@ export default {
       dataSession,
       dataCustomers,
       dataCustomersWithDate,
+      customerListShort,
+      sessionListShort,
       allData,
       isFullPage: true,
       isEmpty: false,
@@ -330,6 +314,8 @@ export default {
           "/AccountDetails/GetAllDetails/"
         );
       } finally {
+        this.customerListShort = this.dataCustomers.slice(0, 3);
+        this.sessionListShort = this.dataSession.slice(0, 3);
         let user = JSON.parse(localStorage.getItem("user"));
 
         if (user != null) {
@@ -389,7 +375,6 @@ export default {
         }
 
         this.allData = this.allData.concat(
-          // this.dataSession,
           this.dataCustomersWithDate,
           this.dataAccountRates,
           this.dataAccountDetails

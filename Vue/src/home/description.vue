@@ -33,7 +33,7 @@
         </div>
       </div>
     </div>
-    <div class="dashboardBtn divided">
+    <div class="dashboardBtn divided" v-show="isAdmin">
       <span class="divider"></span>
       <a class="dashboardLink has-text-primary subtitle is-5" @click="changeView()">
         <b-icon
@@ -66,6 +66,17 @@ export default {
     },
     users() {
       return this.$store.state.users.all;
+    },
+    isAdmin() {
+      let user = JSON.parse(localStorage.getItem("user"));
+
+      if (user != null) {
+        if (user.user.roles == "Admin") {
+          return true;
+        } else {
+          return false;
+        }
+      }
     }
   },
   created() {

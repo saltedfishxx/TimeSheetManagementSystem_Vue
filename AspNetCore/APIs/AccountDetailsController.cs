@@ -39,6 +39,76 @@ namespace TimeSheetManagementSystem.APIs
             _userService = userService;
         }
 
+        //GET AccountDetails/GetFiltered/accname
+        [HttpGet("GetFiltered/{custID}")]
+        public IActionResult GetFilteredDetails(int custID)
+        {
+            //TODO: Fix code here
+            var identity = HttpContext.User.Identity as ClaimsIdentity;
+            int userId = 0;
+            if (identity != null)
+            {
+                IEnumerable<Claim> claims = identity.Claims;
+
+                userId = Int32.Parse(identity.FindFirst("userid").Value);
+                var user = _userService.GetById(userId);
+                string roles = user.Roles;
+
+                List<object> accountDetailList = new List<object>();
+                var accountDetails = Database.AccountDetails
+                    .Include(input => input.CustomerAccount)
+                    .Where(input => input.CustomerAccountId == custID);
+
+                if (accountDetails != null)
+                {
+
+                    foreach (var oneDetail in accountDetails)
+                    {
+                        if (roles.Equals("Admin"))
+                        {
+                            accountDetailList.Add(new
+                            {
+                                accountDetailId = oneDetail.AccountDetailId,
+                                dayOfWeek = oneDetail.DayOfWeekNumber,
+                                startTimeMin = oneDetail.StartTimeInMinutes,
+                                visibility = oneDetail.IsVisible,
+                                endTimeMin = oneDetail.EndTimeInMinutes,
+                                startDate = oneDetail.EffectiveStartDate,
+                                endDate = oneDetail.EffectiveEndDate,
+                                updatedAt = oneDetail.CustomerAccount.UpdatedAt,
+                                updatedBy = oneDetail.CustomerAccount.UpdatedBy.UserName,
+                                accountName = oneDetail.CustomerAccount.AccountName
+                            });
+                        }
+                        else if (roles.Equals("Instructor"))
+                        {
+                            if (oneDetail.IsVisible == true)
+                            {
+                                accountDetailList.Add(new
+                                {
+                                    accountDetailId = oneDetail.AccountDetailId,
+                                    dayOfWeek = oneDetail.DayOfWeekNumber,
+                                    startTimeMin = oneDetail.StartTimeInMinutes,
+                                    visibility = oneDetail.IsVisible,
+                                    endTimeMin = oneDetail.EndTimeInMinutes,
+                                    startDate = oneDetail.EffectiveStartDate,
+                                    endDate = oneDetail.EffectiveEndDate,
+                                    updatedAt = oneDetail.CustomerAccount.UpdatedAt,
+                                    accountName = oneDetail.CustomerAccount.AccountName
+                                    //updatedBy = oneDetail.CustomerAccount.UpdatedBy.UserName
+                                });
+                            }
+                        }
+                    }//foreach
+                }
+                return new JsonResult(accountDetailList);
+            }
+            else
+            {
+                return BadRequest("User not authorized");
+            }
+        }
+
         //GET AccountDetails/GetAllDetails
         [HttpGet("GetAllDetails")]
         public IActionResult GetAllDetails()
@@ -75,7 +145,9 @@ namespace TimeSheetManagementSystem.APIs
                                 startDate = oneDetail.EffectiveStartDate,
                                 endDate = oneDetail.EffectiveEndDate,
                                 updatedAt = oneDetail.CustomerAccount.UpdatedAt,
-                                updatedBy = oneDetail.CustomerAccount.UpdatedBy.UserName
+                                custID = oneDetail.CustomerAccountId,
+                                updatedBy = oneDetail.CustomerAccount.UpdatedBy.UserName,
+                                accountName = oneDetail.CustomerAccount.AccountName
                             });
                         }
                         else if (roles.Equals("Instructor"))
@@ -92,6 +164,8 @@ namespace TimeSheetManagementSystem.APIs
                                     startDate = oneDetail.EffectiveStartDate,
                                     endDate = oneDetail.EffectiveEndDate,
                                     updatedAt = oneDetail.CustomerAccount.UpdatedAt,
+                                    custID = oneDetail.CustomerAccountId,
+                                    accountName = oneDetail.CustomerAccount.AccountName
                                     //updatedBy = oneDetail.CustomerAccount.UpdatedBy.UserName
                                 });
                             }

@@ -38,7 +38,7 @@
             </div>
           </div>
         </div>
-        <!-- todo: add form input -->
+        <!--form input -->
         <div class="field is-horizontal fieldStyle">
           <div class="field-label is-normal">
             <label class="label">Start Time</label>
@@ -231,8 +231,6 @@ var overlapDetails = [];
 var startingTime = null;
 var endingTime = null;
 
-//TODO: edit code for update
-
 export default {
   components: {
     ClashTable: ClashTable,
@@ -379,28 +377,33 @@ export default {
               .add(endingTime, "minutes")
               .format("hh:mm A");
 
-            if (
-              startingTime == row.startTimeMin &&
-              endingTime == row.endTimeMin &&
-              row.dayOfWeek == this.accountDetail.dayOfWeek
-            ) {
-              this.$dialog.alert({
-                title: "Error creating detail",
-                type: "is-danger",
-                message:
-                  "There is an exising account detail with the same day, starting time and ending time.",
-                confirmText: "Ok"
-              });
-              return "same";
-            } else if (
-              timeA.localeCompare(row.endTime) < 0 &&
-              row.startTime.localeCompare(timeB) < 0 &&
-              row.dayOfWeek == this.accountDetail.dayOfWeek
-            ) {
-              overlapDetails.push(row);
-              localStorage.setItem("clashList", JSON.stringify(overlapDetails));
-              this.warningClash(overlapDetails);
-              return "clashed";
+            if (row.accountDetailId != this.accountDetail.accountDetailId) {
+              if (
+                startingTime == row.startTimeMin &&
+                endingTime == row.endTimeMin &&
+                row.dayOfWeek == this.accountDetail.dayOfWeek
+              ) {
+                this.$dialog.alert({
+                  title: "Error creating detail",
+                  type: "is-danger",
+                  message:
+                    "There is an exising account detail with the same day, starting time and ending time.",
+                  confirmText: "Ok"
+                });
+                return "same";
+              } else if (
+                timeA.localeCompare(row.endTime) < 0 &&
+                row.startTime.localeCompare(timeB) < 0 &&
+                row.dayOfWeek == this.accountDetail.dayOfWeek
+              ) {
+                overlapDetails.push(row);
+                localStorage.setItem(
+                  "clashList",
+                  JSON.stringify(overlapDetails)
+                );
+                this.warningClash(overlapDetails);
+                return "clashed";
+              }
             }
           } //end if
         } //end loop
@@ -509,7 +512,7 @@ export default {
           };
           overlapDetails = [];
           // redirect to previous page
-          if (isClashed == "same") {
+          if (isClashed == "noclash") {
             router.go(-1);
           }
         }

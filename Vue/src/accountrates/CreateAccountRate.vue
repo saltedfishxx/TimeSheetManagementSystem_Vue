@@ -146,6 +146,7 @@ export default {
       hasRateError: false,
       hasStartDateError: false,
       hasClashError: false,
+      isClash: false,
       minDate: new Date(today.getFullYear(), today.getMonth(), today.getDate())
     };
   },
@@ -174,8 +175,12 @@ export default {
       for (let i = 0; i < this.accountRates.length; i++) {
         accRateStart = moment(this.accountRates[i].startDate, "DD-MM-YYYY");
         accRateEnd = moment(this.accountRates[i].endDate, "DD-MM-YYYY");
-        console.log(accRateStart, accRateEnd);
+        console.log(this.accountRates[i].rateHour, this.customer.rateHour);
         console.log(dateA, dateB);
+
+        if (this.accountRates[i].rateHour == parseInt(this.customer.rateHour)) {
+          this.isClash = true;
+        }
 
         if (dateB != null || dateB != "") {
           if (dateA.diff(accRateEnd) <= 0 && accRateStart.diff(dateB) <= 0) {
@@ -186,6 +191,15 @@ export default {
         }
       }
 
+      if (this.isClash == true) {
+        this.$dialog.alert({
+          title: "Error creating Rate",
+          type: "is-danger",
+          message:
+            "There is an exising account detail with the same Rate Hour.",
+          confirmText: "Ok"
+        });
+      }
       if (numOnly.test(this.customer.rateHour) == false) {
         this.hasRateError = true;
       } else {
@@ -214,13 +228,15 @@ export default {
         this.hasRateError == true ||
         this.hasStartDateError == true ||
         this.hasClashError == true ||
-        this.hasDateClash == true
+        this.hasDateClash == true ||
+        this.isClash == true
       ) {
       } else {
         this.hasRateError = false;
         this.hasStartDateError = false;
         this.hasClashError = false;
-        this.hasDateClash == false;
+        this.hasDateClash = false;
+        this.isClash = false;
         //send request to web api to post data
 
         try {

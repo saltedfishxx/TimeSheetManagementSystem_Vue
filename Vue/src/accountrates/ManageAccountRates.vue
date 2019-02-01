@@ -11,13 +11,13 @@
     <nav class="breadcrumb" aria-label="breadcrumbs">
       <ul>
         <li>
-          <a href="/">Home</a>
+          <router-link to="/">Home</router-link>
         </li>
         <li>
-          <a href="/ManageCustomerAccounts" aria-current="page">Manage Customer Accounts</a>
+          <router-link to="/ManageCustomerAccounts" aria-current="page">Manage Customer Accounts</router-link>
         </li>
         <li class="is-active">
-          <a href="/" aria-current="page">Manage Account Rates</a>
+          <router-link to="/" aria-current="page">Manage Account Rates</router-link>
         </li>
       </ul>
     </nav>
@@ -65,6 +65,16 @@
           </section>
         </template>
         <template slot-scope="props">
+          <b-table-column field="status" label="is Active" sortable>
+            <b-icon
+              v-if="isrunning(props.row.rateId, props.row.startDate, props.row.endDate)"
+              pack="fas"
+              icon="cog"
+              type="is-success"
+              custom-class="faa-parent animated-hover faa-spin animated"
+            ></b-icon>
+            <b-icon v-else pack="fas" icon="cog" type="is-danger"></b-icon>
+          </b-table-column>
           <b-table-column field="rateHour" label="Rate Per Hour" sortable>{{ props.row.rateHour }}</b-table-column>
 
           <b-table-column field="startDate" label="Effective Start Date" sortable>
@@ -90,11 +100,6 @@
           </b-table-column>
         </template>
       </b-table>
-      <link
-        rel="stylesheet"
-        href="//cdn.materialdesignicons.com/2.5.94/css/materialdesignicons.min.css"
-      >
-      <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css">
     </section>
   </div>
 </template>
@@ -165,6 +170,17 @@ export default {
           console.log("is false");
           return false;
         }
+      }
+    },
+    isrunning(id, startDate, endDate) {
+      var starting = moment(startDate, "DD-MM-YYYY"); // replace format by your one
+      var ending = moment(endDate, "DD-MM-YYYY");
+      var today = moment(new Date());
+      if (today.diff(starting) >= 0 || today.diff(ending) >= 0) {
+        console.log("is running");
+        return true;
+      } else {
+        return false;
       }
     },
     async getAll() {
